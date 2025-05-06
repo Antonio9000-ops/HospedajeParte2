@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro y Login</title>
+  <link rel="stylesheet" href="estilo4.css">
+</head>
+<body>
+  <div class="login">
+    <!--Formulario-->
+    <form id="loginForm" method="post" action="login.php">
+      <h2>Inicia Sesión</h2>
+      <input type="email" name="email" placeholder="Correo electrónico" required>
+      <input type="password" name="password" placeholder="Contraseña" required>
+      <button type="submit">Ingresar</button>
+      <p class="toggle-form">¿No tienes cuenta? <a href="#" onclick="toggleForms()">Regístrate aquí</a></p>
+    </form>
+
+    <!--Formulario de Registro -->
+    <form id="registerForm" method="post" action="registro.php" style="display: none;">
+      <h2>Regístrate</h2>
+      <input type="text" name="nombre" placeholder="Nombre completo" required>
+      <input type="email" name="email" placeholder="Correo electrónico" required>
+      <input type="password" name="password" placeholder="Contraseña" required>
+      <button type="submit">Registrarse</button>
+      <p class="toggle-form">¿Ya tienes cuenta? <a href="#" onclick="toggleForms()">Inicia sesión aquí</a></p>
+    </form>
+  </div>
+<!--Función para alternar entre formularios -->
+  <script>
+    function toggleForms() {
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+      loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
+      registerForm.style.display = registerForm.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
