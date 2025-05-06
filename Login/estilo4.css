@@ -12,9 +12,15 @@ body {
   background: #fff;
   padding: 2rem;
   border-radius: 10px;
-  width: 260px;
+  width: 280px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
   text-align: center;
+  position: relative;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
 }
 
 input {
@@ -34,6 +40,7 @@ button {
   border-radius: 6px;
   font-weight: bold;
 }
+
 .toggle-form {
   margin-top: 1rem;
   font-size: 0.9em;
@@ -50,7 +57,8 @@ button {
 }
 
 #registerForm {
-  position: absolute;
-  width: 260px;
+  display: none;
 }
+
+
 
