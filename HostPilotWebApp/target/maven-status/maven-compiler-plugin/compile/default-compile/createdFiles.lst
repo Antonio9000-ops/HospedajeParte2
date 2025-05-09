@@ -1,0 +1,3 @@
+com\mycompany\servlets\RegistroServlet.class
+com\mycompany\utils\DBConnection.class
+com\mycompany\servlets\LoginServlet.class
