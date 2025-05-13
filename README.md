@@ -84,6 +84,9 @@ Iniciar sesion
 
 ![image](https://github.com/user-attachments/assets/de30fe79-39b6-4dd7-9272-357b6b184131)
 
+Reservas.hmtml
+
+![reservas](https://github.com/user-attachments/assets/ce25dd18-bfce-466e-92b5-806c71faa7bc)
 
 
 
