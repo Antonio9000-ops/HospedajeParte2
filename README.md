@@ -23,11 +23,11 @@ Crear una solución innovadora y fácil de usar para la gestión de alquileres t
 
 **PARA EL FRONTEND:**
 
- -HTML
+ - HTML
  
- -CSS
+ - CSS
  
- -JAVASCRIPT
+ - JAVASCRIPT
  
 **PARA EL BACKEND:**
 
@@ -35,18 +35,18 @@ Crear una solución innovadora y fácil de usar para la gestión de alquileres t
 
 **BASE DE DATOS**
 
--MYSQL
+- MYSQL
 
 **HERRAMIENTAS DE DISEÑO**
 
--FIGMA
+- FIGMA
 
 **CONTROL DE VERSIONES**
 
 - GIT/GITHUB
 
 ---
-**CORREGIR DESDE AQUÍ**
+**CORREGIR DESDE AQUÍ SI ES NECESARIO**
 Prueba de AppLogin
 
 -Descargar XAMPP
