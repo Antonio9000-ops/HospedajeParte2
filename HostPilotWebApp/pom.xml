@@ -18,9 +18,6 @@
         </dependency>
 
 
-<!-- Estupido error No tener ambas dependencias jakarta.* y javax.* al mismo tiempo.
-
- -->
 <dependency>
     <groupId>javax.servlet</groupId>
     <artifactId>javax.servlet-api</artifactId>
