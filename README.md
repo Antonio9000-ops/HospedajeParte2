@@ -1,4 +1,4 @@
- # 🌐 ***HOSTPILOT*** <img src="https://github.com/github-copilot/chat/attachments/592892" width=200px height=150px>
+ # 🌐 ***HOSTPILOT*** <img src="https://github.com/github-copilot/chat/attachments/592892" width=500px height=280px>
 
 *HostPilot* es una página web diseñada para facilitar el alquiler de alojamientos temporales.
 Conectamos a anfitriones que desean alquilar sus inmuebles con huéspedes de todas partes del país que buscan opciones seguras, accesibles y confiables. :smile:
