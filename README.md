@@ -1,3 +1,52 @@
+***HOSTPILOT***
+
+*HostPilot* es una página web diseñada para facilitar el alquiler de alojamientos temporales.
+Conectamos a anfitriones que desean alquilar sus inmuebles con huéspedes de todas partes del país que buscan opciones seguras, accesibles y confiables.
+
+---
+***MISIÓN***
+
+Ofrecer una plataforma web segura y cómoda para los usuarios (tanto huéspedes como anfitriones) mejorando la experiencia de alquiler y generando confianza entre los usuarios.
+
+---
+***VISIÓN***
+
+Ser una plataforma líder en el mercado de alquiler de alojamientos online a nivel nacional y próximamente internacional, siendo reconocida por su facilidad de uso, seguridad, innovación y por crear una comunidad basada en la confianza y la gratificante experiencia entre usuarios y huéspedes.
+
+---
+***OBJETIVOS DEL PROYECTO***
+
+Crear una solución innovadora y fácil de usar para la gestión de alquileres temporales, ofreciendo funcionalidades claras y procesos seguros para los usuarios.
+
+---
+***TECNOLOGÍAS UTILIZADAS/IMPLEMENTADAS***
+
+**PARA EL FRONTEND:**
+
+ -HTML
+ 
+ -CSS
+ 
+ -JAVASCRIPT
+ 
+**PARA EL BACKEND:**
+
+- JAVA
+
+**BASE DE DATOS**
+
+-MYSQL
+
+**HERRAMIENTAS DE DISEÑO**
+
+-FIGMA
+
+**CONTROL DE VERSIONES**
+
+- GIT/GITHUB
+
+---
+**CORREGIR DESDE AQUÍ**
 Prueba de AppLogin
 
 -Descargar XAMPP
