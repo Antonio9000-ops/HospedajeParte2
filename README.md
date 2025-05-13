@@ -56,7 +56,7 @@ Crear una solución innovadora y fácil de usar para la gestión de alquileres t
 <p align="center"><ins>REGISTRO DE USUARIO</ins></p>
 <p align="center"><img src="https://github.com/user-attachments/assets/e01b044e-6cb4-47ee-870c-bebdf45d1599" width=300px height=300px></p>
 
-<p align="center"><ins>CONEXION BASE DE DATOS</ins></p>
+<p align="center"><ins>CONEXIÓN BASE DE DATOS</ins></p>
 <p align="center"><img src="https://github.com/user-attachments/assets/30af115e-dd93-4c96-b4f1-fb240714a28f" width=600px height=200px></p>
 
 <p align="center"><ins>INICIO DE SESIÓN</ins></p>
