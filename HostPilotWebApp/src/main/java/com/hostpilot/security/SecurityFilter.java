@@ -17,27 +17,29 @@ public class SecurityFilter implements Filter {
 
     private static final Logger LOGGER = Logger.getLogger(SecurityFilter.class.getName());
 
-   
     private static final Set<String> PUBLIC_URLS = new HashSet<>(Arrays.asList(
-            "/",                // La raíz
-            "/index.jsp",       // El welcome-file
-            "/login",           // Servlet de Login
-            "/registro",        // Servlet de Registro
-            "/buscar",          // NUEVO: Servlet de Búsqueda
-            "/propiedad",       // NUEVO: Servlet de Detalles de Propiedad
-            "/css/",            // Recursos estáticos
+            "/",
+            "/index.jsp",
+            "/login",
+            "/registro",
+            "/buscar",
+            "/propiedad",
+            "/reservas",
+            "/anfitrion",
+            "/css/",
             "/js/",
             "/images/",
-            "/anfitrion", // AÑADIDO
-            "/reservas",  // <<< AÑADIDO AQU
             "/favicon.ico",
-            "/error/"           // Páginas de error 
+            "/realizar-reserva",
+            "/error/"
             
     ));
 
-    // URLs que requieren rol de administrador
     private static final Set<String> ADMIN_URLS = new HashSet<>(Arrays.asList("/admin/"));
 
+    private static final Set<String> API_URLS = new HashSet<>(Arrays.asList(
+            "/realizar-reserva"
+    ));
     
     private Set<String> excludePatterns = new HashSet<>();
 
@@ -50,7 +52,6 @@ public class SecurityFilter implements Filter {
                 String trimmedPattern = pattern.trim();
                 if (!trimmedPattern.isEmpty()) {
                     excludePatterns.add(trimmedPattern);
-                    LOGGER.log(Level.INFO, "Patrón de exclusión (desde web.xml): {0}", trimmedPattern);
                 }
             }
         }
@@ -65,105 +66,79 @@ public class SecurityFilter implements Filter {
 
         addSecurityHeaders(httpResponse);
 
-        String requestURI = httpRequest.getRequestURI();
-        String contextPath = httpRequest.getContextPath();
-        String path = requestURI.substring(contextPath.length());
-
+        String path = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
         if (path.isEmpty()) {
             path = "/";
         }
-
+        
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
 
-        LOGGER.log(Level.INFO, "SecurityFilter procesando path: {0}", path);
-
         try {
-
             if (isExcludedOrPublicURL(path)) {
-                LOGGER.log(Level.INFO, "Path público o excluido: {0}. Pasando al siguiente en la cadena.", path);
                 chain.doFilter(request, response);
                 return;
             }
 
             if (!SessionManager.validateSession(httpRequest)) {
-                LOGGER.log(Level.INFO, "Sesión no válida para path protegido: {0}. Redirigiendo a login.", path);
-                // Es correcto pasar el mensaje aquí, ya que se intentó acceder a un recurso protegido
-                // y la sesión no era válida (o no existía y no era el acceso inicial a una página pública).
-                redirectToLogin(httpRequest, httpResponse, "Su sesión ha expirado o no es válida. Por favor, inicie sesión.");
+                if (isApiURL(path)) {
+                    httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    httpResponse.setContentType("application/json");
+                    httpResponse.setCharacterEncoding("UTF-8");
+                    httpResponse.getWriter().write("{\"status\":\"error\", \"message\":\"Debe iniciar sesión para realizar esta acción.\"}");
+                } else {
+                    redirectToLogin(httpRequest, httpResponse, "Su sesión ha expirado o no es válida.");
+                }
                 return;
             }
-
 
             if (isAdminURL(path) && !SessionManager.hasRole(httpRequest, "ADMIN")) {
-                LOGGER.log(Level.WARNING, "Acceso no autorizado a URL de admin ({0}) por usuario {1} (Rol: {2})",
-                        new Object[]{path, SessionManager.getCurrentUserEmail(httpRequest), SessionManager.getCurrentUserRole(httpRequest)});
-                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "No tiene los permisos necesarios para acceder a este recurso.");
+                httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso Denegado.");
                 return;
             }
 
-            LOGGER.log(Level.INFO, "Acceso permitido para path: {0}", path);
             chain.doFilter(request, response);
 
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Error inesperado en SecurityFilter al procesar " + path, e);
+            LOGGER.log(Level.SEVERE, "Error inesperado en SecurityFilter para path: " + path, e);
             if (!httpResponse.isCommitted()) {
-
-                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error interno procesando la solicitud.");
+                httpResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error interno del servidor.");
             }
         }
     }
 
-    private boolean isExcludedOrPublicURL(String path) {
-     
-        for (String pattern : excludePatterns) {
-            if (path.startsWith(pattern)) {
-                LOGGER.log(Level.FINER, "Path {0} coincide con patrón de exclusión: {1}", new Object[]{path, pattern});
-                return true;
-            }
-        }
- 
-        if (PUBLIC_URLS.contains(path)) {
-            LOGGER.log(Level.FINER, "Path {0} está en PUBLIC_URLS.", path);
-            return true;
-        }
+    private boolean isApiURL(String path) {
+        return API_URLS.stream().anyMatch(path::startsWith);
+    }
     
+    private boolean isExcludedOrPublicURL(String path) {
+        for (String pattern : excludePatterns) {
+            if (path.startsWith(pattern)) return true;
+        }
+        if (PUBLIC_URLS.contains(path)) return true;
         for (String publicUrlPrefix : PUBLIC_URLS) {
             if (publicUrlPrefix.endsWith("/") && path.startsWith(publicUrlPrefix)) {
-                LOGGER.log(Level.FINER, "Path {0} coincide con prefijo público: {1}", new Object[]{path, publicUrlPrefix});
                 return true;
             }
         }
-        LOGGER.log(Level.FINER, "Path {0} no es público ni excluido.", path);
         return false;
     }
     
-    
-
     private boolean isAdminURL(String path) {
-        if (ADMIN_URLS.contains(path)) return true;
-        for (String adminUrlPrefix : ADMIN_URLS) {
-            if (adminUrlPrefix.endsWith("/") && path.startsWith(adminUrlPrefix)) return true;
-        }
-        return false;
+        return ADMIN_URLS.stream().anyMatch(path::startsWith);
     }
-    
-    
 
     private void redirectToLogin(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         HttpSession session = request.getSession(); 
         String currentPath = request.getRequestURI().substring(request.getContextPath().length());
-         if (currentPath.isEmpty()) { // Normalizar raíz
+        if (currentPath.isEmpty()) {
             currentPath = "/";
         }
 
         if (!currentPath.equals("/login") && !currentPath.equals("/registro") && !currentPath.equals("/")) {
             String requestedURIWithQuery = request.getRequestURI() + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
             session.setAttribute("requestedURI", requestedURIWithQuery);
-            LOGGER.log(Level.INFO, "Guardando URL solicitada ({0}) para redirección post-login.", requestedURIWithQuery);
-        } else {
-             LOGGER.log(Level.INFO, "No se guarda requestedURI para path: {0}", currentPath);
         }
 
         String redirectURL = request.getContextPath() + "/login";
@@ -172,57 +147,29 @@ public class SecurityFilter implements Filter {
         }
         
         if (!response.isCommitted()) {
-            LOGGER.log(Level.INFO, "Redirigiendo a: {0}", redirectURL);
             response.sendRedirect(redirectURL);
-        } else {
-            LOGGER.warning("La respuesta ya fue enviada (committed), no se puede redirigir a login.");
         }
     }
-    
-    
 
     private void addSecurityHeaders(HttpServletResponse response) {
         response.setHeader("X-Frame-Options", "DENY");
         response.setHeader("X-XSS-Protection", "1; mode=block");
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-
-        // --- INICIO DE LA CORRECCIÓN DE CSP ---
-        // Política de Seguridad de Contenido (CSP) actualizada para permitir CDNs
+        
         response.setHeader("Content-Security-Policy", 
-             "default-src 'self'; " +  // Por defecto, solo permitir recursos del mismo origen
-
-             // Permitir scripts de nuestro dominio, inline, y de las CDNs que usamos
+             "default-src 'self'; " +
              "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " + 
-             
-             // Permitir estilos de nuestro dominio, inline, y de las CDNs que usamos
              "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; " +
-             
-             // Permitir fuentes de nuestro dominio y de Google Fonts
              "font-src 'self' https://fonts.gstatic.com; " + 
-             
-             // Permitir imágenes de nuestro dominio, data URIs, y de las URLs de ejemplo que usamos
-             "img-src 'self' data: https://hips.hearstapps.com https://nexoinmobiliario.pe https://imagenes.20minutos.es https://content.elmueble.com https://images.unsplash.com https://dbdzm869oupei.cloudfront.net https://cf.bstatic.com https://i.pinimg.com https://encrypted-tbn0.gstatic.com https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://cdn-icons-png.flaticon.com; " +
-             
-                     
-          
-        // Añadimos https://unpkg.com para permitir las imágenes de los marcadores de Leaflet.
-        "img-src 'self' data: https://hips.hearstapps.com https://nexoinmobiliario.pe https://imagenes.20minutos.es " +
-        "https://content.elmueble.com https://images.unsplash.com https://dbdzm869oupei.cloudfront.net " +
-        "https://cf.bstatic.com https://i.pinimg.com https://encrypted-tbn0.gstatic.com " +
-        "https://*.basemaps.cartocdn.com https://cdn-icons-png.flaticon.com https://unpkg.com; " +
-       
-                     
-             "form-action 'self'; " + // Permitir que los formularios envíen datos a nuestro dominio
-             "frame-ancestors 'none';"); // Prevenir clickjacking
-        // --- FIN DE LA CORRECCIÓN DE CSP ---
+             "img-src 'self' data: https:; " + // 'https:' permite imágenes de cualquier fuente HTTPS
+             "form-action 'self'; " +
+             "frame-ancestors 'none';"
+        );
     }
 
     @Override
     public void destroy() {
         LOGGER.info("Destruyendo SecurityFilter...");
-        excludePatterns.clear();
     }
-    
-    
 }

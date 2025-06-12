@@ -5,9 +5,11 @@ com\hostpilot\dao\UsuarioDAOImpl.class
 com\hostpilot\exception\AppException.class
 com\hostpilot\controller\UsuarioController.class
 com\hostpilot\security\SessionManager$FailedAttempt.class
+com\hostpilot\service\AuthenticationService.class
 com\hostpilot\controller\ReservaController.class
 com\hostpilot\config\DatabaseConfig.class
 com\hostpilot\controller\BusquedaController.class
+com\hostpilot\service\ServiceException.class
 com\hostpilot\dao\UsuarioDAO.class
 com\hostpilot\controller\RealizarReservaController.class
 com\hostpilot\dao\ReservaDAO.class

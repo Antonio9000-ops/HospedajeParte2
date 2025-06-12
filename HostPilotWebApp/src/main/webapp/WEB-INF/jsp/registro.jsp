@@ -7,7 +7,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro de Usuario - HostPilot</title>
 
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/estilo4.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f4f7; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 40px 20px; }
+        a { text-decoration: none; color: #007bff; }
+        a:hover { text-decoration: underline; }
+        
+        .register-container { 
+            background-color: #ffffff; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 500px; 
+            text-align: center; 
+        }
+        .register-container h2 { 
+            margin-bottom: 10px; 
+            color: #001f54; 
+            font-weight: 700;
+        }
+        .register-container .sub-heading {
+            margin-bottom: 30px;
+            color: #666;
+        }
+
+        .form-group { 
+            margin-bottom: 15px; 
+            text-align: left; 
+        }
+        .form-group label { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: #555; 
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        .form-group small {
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .btn-submit { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            font-weight: 600;
+            width: 100%; 
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .btn-submit:hover { background-color: #218838; }
+
+        .message { 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            text-align: center;
+            font-weight: 500;
+        }
+        .error-message { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .success-message { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .success-message a { font-weight: bold; }
+
+        .login-link { 
+            margin-top: 25px; 
+            font-size: 0.95rem; 
+        }
+    </style>
+    
 </head>
 <body>
    

@@ -89,19 +89,18 @@
         <!-- FIN: HTML del Header -->
     </header>
 
- <div class="page-layout">
+    <div class="page-layout">
         <div class="left-col">
             <div class="airbnb-wrapper">
                 <h2 class="text-center mb-4">Alojamientos Disponibles</h2>
                 <div class="ap-grid" id="apartmentGrid">
                     
-                    <!-- Las tarjetas ahora se generan con JSTL -->
                     <c:forEach items="${listaPropiedades}" var="prop">
                         <div class="ap-card-wrapper" 
                              data-id="${prop.id}" 
                              data-nombre="<c:out value='${prop.nombre}'/>"
                              data-ciudad="<c:out value='${prop.ciudad}'/>"
-                             data-precio="<fmt:formatNumber value='${prop.precio}' type='number' minFractionDigits='0'/>"
+                             data-precio="${prop.precio}"
                              data-rating="${prop.rating}"
                              data-reviews="${prop.reviews}"
                              data-img-url="${prop.imgUrl}">
@@ -114,7 +113,7 @@
                                         <div class="rating">★ <c:out value="${prop.rating}"/></div>
                                     </div>
                                     <div class="text-muted small"><c:out value="${prop.ciudad}"/>, Perú</div>
-                                    <div><span class="price">S/<fmt:formatNumber value='${prop.precio}' type='number' minFractionDigits='0'/></span> noche</div>
+                                    <div><span class="price">S/<fmt:formatNumber value="${prop.precio}" type="number" minFractionDigits="0"/></span> noche</div>
                                     <button class="saber-mas-btn mt-2 btn btn-sm btn-primary">Ver Detalles</button>
                                 </div>
                             </div>
@@ -128,6 +127,9 @@
             <div id="map"></div>
         </div>
     </div>
+</div>
+
+<!-- HTML del Modal (se mantiene igual) -->
 <div id="propiedadModal" class="modal">
     <div class="modal-content">
         <span class="modal-close">×</span>
@@ -147,26 +149,26 @@
                         <!-- Formulario de reserva para usuarios logueados -->
                         <form id="formReserva">
                             <input type="hidden" id="propiedadId" name="propiedadId">
-                            <div class="form-group">
-                                <label for="checkin">Fecha de Check-in:</label>
-                                <input type="date" id="checkin" name="checkin" required>
+                            <div class="row">
+                                <div class="col-md-6 form-group">
+                                    <label for="checkin">Fecha de Check-in:</label>
+                                    <input type="date" id="checkin" name="checkin" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 form-group">
+                                    <label for="checkout">Fecha de Check-out:</label>
+                                    <input type="date" id="checkout" name="checkout" class="form-control" required>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="checkout">Fecha de Check-out:</label>
-                                <input type="date" id="checkout" name="checkout" required>
-                            </div>
-                            <button type="submit" class="btn-reservar">Reservar Ahora</button>
+                            <button type="submit" class="btn-reservar mt-3">Reservar Ahora</button>
                         </form>
                     </c:when>
                     <c:otherwise>
                         <!-- Mensaje para usuarios no logueados -->
-                        <div class="login-prompt">
+                        <div class="login-prompt alert alert-warning">
                             <h4>Para reservar, necesitas una cuenta</h4>
-                            <p>
-                                <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Iniciar Sesión</a>
-                                o
-                                <a href="${pageContext.request.contextPath}/registro" class="btn btn-secondary">Registrarse</a>
-                            </p>
+                            <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Iniciar Sesión</a>
+                            o
+                            <a href="${pageContext.request.contextPath}/registro" class="btn btn-secondary">Registrarse</a>
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -175,100 +177,177 @@
         </div>
     </div>
 </div>
-        
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. GENERAR LOS DATOS PARA JAVASCRIPT A PARTIR DEL MODELO DEL CONTROLADOR
+    const contextPath = "${pageContext.request.contextPath}";
     const apartmentData = [
         <c:forEach items="${listaPropiedades}" var="prop" varStatus="loop">
             { 
                 id: ${prop.id}, 
                 name: '<c:out value="${prop.nombre}"/>', 
                 lat: ${prop.lat}, 
-                lng: ${prop.lng}
+                lng: ${prop.lng},
+                ciudad: '<c:out value="${prop.ciudad}"/>',
+                precio: <c:out value="${prop.precio}"/>,
+                rating: ${prop.rating},
+                reviews: ${prop.reviews},
+                imgUrl: '${prop.imgUrl}'
             }<c:if test="${not loop.last}">,</c:if>
         </c:forEach>
     ];
 
+    const apartmentGrid = document.getElementById('apartmentGrid');
     const mapElement = document.getElementById('map');
     const modal = document.getElementById('propiedadModal');
-    const modalCloseButton = document.querySelector('.modal-close');
+    const modalCloseButton = modal.querySelector('.modal-close');
     const formReserva = document.getElementById('formReserva');
     const reservaMessageDiv = document.getElementById('reservaMessage');
+    
+    initMap();
+    attachEventListeners();
 
-    // 2. INICIALIZAR EL MAPA Y MARCADORES
-    if (mapElement) {
+    function initMap() {
+        if (!mapElement) {
+            console.error("Mapa no encontrado.");
+            return;
+        }
         try {
             const map = L.map(mapElement).setView([-9.19, -75.0152], 5);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap, © CartoDB'
             }).addTo(map);
             
-            setTimeout(() => map.invalidateSize(), 100);
+            setTimeout(() => map.invalidateSize(), 200);
 
-            const markers = {};
             apartmentData.forEach(ap => {
                 const marker = L.marker([ap.lat, ap.lng]).addTo(map).bindPopup(`<strong>${ap.name}</strong>`);
-                markers[ap.id] = marker;
-                marker.on('click', () => openModalWithData(document.querySelector(`.ap-card-wrapper[data-id="${ap.id}"]`)));
-            });
-
-            // 3. AÑADIR EVENT LISTENERS A LAS TARJETAS GENERADAS POR JSTL
-            document.querySelectorAll('.ap-card-wrapper').forEach(cardWrapper => {
-                const id = cardWrapper.dataset.id;
-                const marker = markers[id];
-
-                // Abrir modal al hacer clic en el botón "Ver Detalles"
-                cardWrapper.querySelector('.saber-mas-btn').addEventListener('click', (event) => {
-                    event.preventDefault();
-                    openModalWithData(cardWrapper);
-                });
-
-                // Interactividad con el mapa
-                if (marker) {
-                    cardWrapper.addEventListener('mouseover', () => { marker.openPopup(); cardWrapper.querySelector('.ap-card').classList.add('highlight'); });
-                    cardWrapper.addEventListener('mouseout', () => { marker.closePopup(); cardWrapper.querySelector('.ap-card').classList.remove('highlight'); });
+                const cardWrapper = document.querySelector(`.ap-card-wrapper[data-id="${ap.id}"]`);
+                if (cardWrapper) {
+                    marker.on('click', () => cardWrapper.querySelector('.saber-mas-btn').click());
+                    cardWrapper.addEventListener('mouseover', () => { marker.openPopup(); highlightCard(ap.id, true); });
+                    cardWrapper.addEventListener('mouseout', () => { marker.closePopup(); highlightCard(ap.id, false); });
                 }
             });
-
         } catch (e) {
-            console.error("Error al inicializar el mapa:", e);
+            console.error("Error al inicializar el mapa Leaflet:", e);
             mapElement.innerHTML = '<div class="alert alert-danger m-3">Error al cargar el mapa.</div>';
         }
     }
 
-    // 4. LÓGICA DEL MODAL Y FORMULARIO
-    function openModalWithData(cardWrapper) {
-        if (!modal || !cardWrapper) return;
+    function attachEventListeners() {
+        if (apartmentGrid) {
+            apartmentGrid.addEventListener('click', function(event) {
+                const detailsButton = event.target.closest('.saber-mas-btn');
+                if (detailsButton) {
+                    const cardWrapper = detailsButton.closest('.ap-card-wrapper');
+                    if (cardWrapper) {
+                        const propertyId = cardWrapper.dataset.id;
+                        const propertyData = apartmentData.find(p => p.id == propertyId);
+                        if (propertyData) {
+                            openModalWithData(propertyData);
+                        }
+                    }
+                }
+            });
+        }
+
+        if (modalCloseButton) modalCloseButton.onclick = closeModal;
+        window.onclick = (event) => { if (event.target === modal) closeModal(); };
         
-        // Obtener datos de los atributos data-* de la tarjeta
-        document.getElementById('modalImage').src = cardWrapper.dataset.imgUrl;
-        document.getElementById('modalTitle').textContent = cardWrapper.dataset.nombre;
-        document.getElementById('modalLocation').textContent = `${cardWrapper.dataset.ciudad}, Perú`;
-        document.getElementById('modalPrice').textContent = cardWrapper.dataset.precio;
-        document.getElementById('modalRating').textContent = `${cardWrapper.dataset.rating} (${cardWrapper.dataset.reviews} reviews)`;
-        document.getElementById('modalDescription').textContent = `Descubre este increíble alojamiento en ${cardWrapper.dataset.ciudad}.`;
+        if (formReserva) {
+            formReserva.addEventListener('submit', handleReservationSubmit);
+        }
+    }
+
+    function openModalWithData(propiedad) {
+        if (!modal || !propiedad) return;
+        
+        modal.querySelector('#modalImage').src = propiedad.imgUrl;
+        modal.querySelector('#modalTitle').textContent = propiedad.name;
+        modal.querySelector('#modalLocation').textContent = `${propiedad.ciudad}, Perú`;
+        modal.querySelector('#modalPrice').textContent = propiedad.precio.toFixed(0);
+        modal.querySelector('#modalRating').textContent = `${propiedad.rating} (${propiedad.reviews} reviews)`;
+        modal.querySelector('#modalDescription').textContent = `Descubre este increíble alojamiento en ${propiedad.ciudad}. Con todas las comodidades modernas, es el lugar perfecto para tu próxima aventura.`;
         
         if (reservaMessageDiv) reservaMessageDiv.innerHTML = '';
-        if (formReserva) document.getElementById('propiedadId').value = cardWrapper.dataset.id;
-
+        if (formReserva) {
+            formReserva.querySelector('#propiedadId').value = propiedad.id;
+            const botonReservar = formReserva.querySelector('.btn-reservar');
+            if(botonReservar) {
+                botonReservar.disabled = false;
+                botonReservar.textContent = 'Reservar Ahora';
+            }
+        }
         modal.style.display = 'block';
     }
-
-    if (modalCloseButton) {
-        modalCloseButton.onclick = () => { modal.style.display = 'none'; };
-    }
-    window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    };
     
-    if (formReserva) {
-        // ... (el código del fetch para el formulario de reserva se mantiene igual) ...
+    function closeModal() {
+        if(modal) modal.style.display = 'none';
+    }
+
+    function highlightCard(id, highlight) {
+        const card = document.querySelector(`[data-id="${id}"] .ap-card`);
+        if (card) {
+            highlight ? card.classList.add('highlight') : card.classList.remove('highlight');
+        }
+    }
+
+    function handleReservationSubmit(event) {
+        event.preventDefault();
+        const botonReservar = this.querySelector('.btn-reservar');
+        const formData = new FormData(this);
+        const checkin = formData.get('checkin');
+        const checkout = formData.get('checkout');
+
+        botonReservar.disabled = true;
+        botonReservar.textContent = 'Procesando...';
+        reservaMessageDiv.className = 'alert alert-info mt-3';
+        reservaMessageDiv.textContent = 'Enviando su solicitud...';
+
+        if (!checkin || !checkout || new Date(checkout) <= new Date(checkin)) {
+            reservaMessageDiv.className = 'alert alert-danger mt-3';
+            reservaMessageDiv.textContent = 'Las fechas son inválidas. El check-out debe ser posterior al check-in.';
+            botonReservar.disabled = false;
+            botonReservar.textContent = 'Reservar Ahora';
+            return;
+        }
+
+        fetch(`${contextPath}/realizar-reserva`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then(response => {
+            return response.json().then(data => {
+                if (!response.ok) {
+                    throw new Error(data.message || 'Ocurrió un error en el servidor.');
+                }
+                return data;
+            });
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                reservaMessageDiv.className = 'alert alert-success mt-3';
+                reservaMessageDiv.textContent = data.message;
+                botonReservar.textContent = '¡Reservado!';
+                setTimeout(closeModal, 3000);
+            } else {
+                throw new Error(data.message || 'No se pudo completar la reserva.');
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud de reserva:', error);
+            reservaMessageDiv.className = 'alert alert-danger mt-3';
+            reservaMessageDiv.textContent = error.message;
+            botonReservar.disabled = false;
+            botonReservar.textContent = 'Reservar Ahora';
+        });
     }
 });
 </script>
