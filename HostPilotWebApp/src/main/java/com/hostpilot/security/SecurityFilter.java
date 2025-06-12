@@ -19,15 +19,20 @@ public class SecurityFilter implements Filter {
 
    
     private static final Set<String> PUBLIC_URLS = new HashSet<>(Arrays.asList(
-            "/",               
-            "/index.jsp",       
-            "/login",           
-            "/registro",        
-            "/css/",            
+            "/",                // La raíz
+            "/index.jsp",       // El welcome-file
+            "/login",           // Servlet de Login
+            "/registro",        // Servlet de Registro
+            "/buscar",          // NUEVO: Servlet de Búsqueda
+            "/propiedad",       // NUEVO: Servlet de Detalles de Propiedad
+            "/css/",            // Recursos estáticos
             "/js/",
             "/images/",
+            "/anfitrion", // AÑADIDO
+            "/reservas",  // <<< AÑADIDO AQU
             "/favicon.ico",
-            "/error/"           
+            "/error/"           // Páginas de error 
+            
     ));
 
     // URLs que requieren rol de administrador
@@ -133,6 +138,8 @@ public class SecurityFilter implements Filter {
         LOGGER.log(Level.FINER, "Path {0} no es público ni excluido.", path);
         return false;
     }
+    
+    
 
     private boolean isAdminURL(String path) {
         if (ADMIN_URLS.contains(path)) return true;
@@ -141,6 +148,8 @@ public class SecurityFilter implements Filter {
         }
         return false;
     }
+    
+    
 
     private void redirectToLogin(HttpServletRequest request, HttpServletResponse response, String message) throws IOException {
         HttpSession session = request.getSession(); 
@@ -169,14 +178,44 @@ public class SecurityFilter implements Filter {
             LOGGER.warning("La respuesta ya fue enviada (committed), no se puede redirigir a login.");
         }
     }
+    
+    
 
-     private void addSecurityHeaders(HttpServletResponse response) {
+    private void addSecurityHeaders(HttpServletResponse response) {
         response.setHeader("X-Frame-Options", "DENY");
         response.setHeader("X-XSS-Protection", "1; mode=block");
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-        response.setHeader("Content-Security-Policy",
-             "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; form-action 'self'; frame-ancestors 'none';");
+
+        // --- INICIO DE LA CORRECCIÓN DE CSP ---
+        // Política de Seguridad de Contenido (CSP) actualizada para permitir CDNs
+        response.setHeader("Content-Security-Policy", 
+             "default-src 'self'; " +  // Por defecto, solo permitir recursos del mismo origen
+
+             // Permitir scripts de nuestro dominio, inline, y de las CDNs que usamos
+             "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; " + 
+             
+             // Permitir estilos de nuestro dominio, inline, y de las CDNs que usamos
+             "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; " +
+             
+             // Permitir fuentes de nuestro dominio y de Google Fonts
+             "font-src 'self' https://fonts.gstatic.com; " + 
+             
+             // Permitir imágenes de nuestro dominio, data URIs, y de las URLs de ejemplo que usamos
+             "img-src 'self' data: https://hips.hearstapps.com https://nexoinmobiliario.pe https://imagenes.20minutos.es https://content.elmueble.com https://images.unsplash.com https://dbdzm869oupei.cloudfront.net https://cf.bstatic.com https://i.pinimg.com https://encrypted-tbn0.gstatic.com https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://*.basemaps.cartocdn.com https://cdn-icons-png.flaticon.com; " +
+             
+                     
+          
+        // Añadimos https://unpkg.com para permitir las imágenes de los marcadores de Leaflet.
+        "img-src 'self' data: https://hips.hearstapps.com https://nexoinmobiliario.pe https://imagenes.20minutos.es " +
+        "https://content.elmueble.com https://images.unsplash.com https://dbdzm869oupei.cloudfront.net " +
+        "https://cf.bstatic.com https://i.pinimg.com https://encrypted-tbn0.gstatic.com " +
+        "https://*.basemaps.cartocdn.com https://cdn-icons-png.flaticon.com https://unpkg.com; " +
+       
+                     
+             "form-action 'self'; " + // Permitir que los formularios envíen datos a nuestro dominio
+             "frame-ancestors 'none';"); // Prevenir clickjacking
+        // --- FIN DE LA CORRECCIÓN DE CSP ---
     }
 
     @Override
@@ -184,4 +223,6 @@ public class SecurityFilter implements Filter {
         LOGGER.info("Destruyendo SecurityFilter...");
         excludePatterns.clear();
     }
+    
+    
 }

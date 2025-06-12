@@ -99,6 +99,64 @@
         <servlet-name>AdminController</servlet-name>
         <url-pattern>/admin/*</url-pattern>
     </servlet-mapping>
+    
+     <!-- Controlador para la Búsqueda -->
+    <servlet>
+        <servlet-name>BusquedaController</servlet-name>
+        <servlet-class>com.hostpilot.controller.BusquedaController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BusquedaController</servlet-name>
+        <url-pattern>/buscar</url-pattern>
+    </servlet-mapping>
+
+    <!-- Controlador para Detalles de Propiedad -->
+    <servlet>
+        <servlet-name>PropiedadController</servlet-name>
+        <servlet-class>com.hostpilot.controller.PropiedadController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PropiedadController</servlet-name>
+        <url-pattern>/propiedad</url-pattern>
+    </servlet-mapping>
+    
+    <!-- Controlador para la Página de Reservas -->
+    <servlet>
+        <servlet-name>ReservaController</servlet-name>
+        <servlet-class>com.hostpilot.controller.ReservaController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ReservaController</servlet-name>
+        <url-pattern>/reservas</url-pattern>
+    </servlet-mapping>
+    
+    
+    <servlet>
+    <servlet-name>AnfitrionController</servlet-name>
+    <servlet-class>com.hostpilot.controller.AnfitrionController</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>AnfitrionController</servlet-name>
+    <url-pattern>/anfitrion</url-pattern>
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>IndexController</servlet-name>
+    <servlet-class>com.hostpilot.controller.IndexController</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>IndexController</servlet-name>
+    <url-pattern></url-pattern> <!-- Mapeo a la raíz -->
+</servlet-mapping>
+
+<servlet>
+    <servlet-name>RealizarReservaController</servlet-name>
+    <servlet-class>com.hostpilot.controller.RealizarReservaController</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>RealizarReservaController</servlet-name>
+    <url-pattern>/realizar-reserva</url-pattern>
+</servlet-mapping>
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
