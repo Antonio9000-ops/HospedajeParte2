@@ -10,20 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+
 public class ReservaController extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(ReservaController.class.getName());
 
+    /**
+     * Maneja las solicitudes GET para mostrar la página de reservas.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        LOGGER.info("ReservaController: Obteniendo datos de propiedades para la página de reservas.");
+        LOGGER.info("ReservaController (GET /reservas): Mostrando página de reservas.");
         
-        String contextPath = request.getContextPath(); // Obtener el context path
+        String contextPath = request.getContextPath();
         List<Propiedad> propiedades = new ArrayList<>();
 
-        // Crear la lista de propiedades con la ruta completa a la imagen
         propiedades.add(new Propiedad(1, "Loft moderno en Miraflores", -12.1215, -77.0307, "Lima", 240, 4.9, 25, contextPath + "/img/1.jpg"));
         propiedades.add(new Propiedad(2, "Depto con vista al mar", -4.1089, -81.1528, "Mancora", 320, 4.7, 5, contextPath + "/img/2.jpg"));
         propiedades.add(new Propiedad(3, "Ático panorámico en el Centro", -13.517, -71.978, "Cusco", 450, 4.8, 15, contextPath + "/img/3.jpg"));
@@ -36,4 +39,6 @@ public class ReservaController extends HttpServlet {
         request.setAttribute("listaPropiedades", propiedades);
         request.getRequestDispatcher("/WEB-INF/jsp/reservas.jsp").forward(request, response);
     }
+    
+    
 }

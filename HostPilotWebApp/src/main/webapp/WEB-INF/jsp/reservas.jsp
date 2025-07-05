@@ -180,9 +180,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // --- VARIABLES Y CONSTANTES ---
     const contextPath = "${pageContext.request.contextPath}";
     const apartmentData = [
         <c:forEach items="${listaPropiedades}" var="prop" varStatus="loop">
@@ -200,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </c:forEach>
     ];
 
+    // Elementos del DOM
     const apartmentGrid = document.getElementById('apartmentGrid');
     const mapElement = document.getElementById('map');
     const modal = document.getElementById('propiedadModal');
@@ -207,37 +208,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const formReserva = document.getElementById('formReserva');
     const reservaMessageDiv = document.getElementById('reservaMessage');
     
+    // --- INICIALIZACIÓN ---
     initMap();
     attachEventListeners();
 
+    // --- FUNCIONES ---
+
+    /**
+     * Inicializa el mapa Leaflet y añade los marcadores para cada propiedad.
+     */
     function initMap() {
         if (!mapElement) {
-            console.error("Mapa no encontrado.");
+            console.error("Elemento del mapa no encontrado en el DOM.");
             return;
         }
         try {
-            const map = L.map(mapElement).setView([-9.19, -75.0152], 5);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap, © CartoDB'
+            const map = L.map(mapElement).setView([-9.19, -75.0152], 5); // Vista general de Perú
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
             }).addTo(map);
             
+            // Invalida el tamaño del mapa después de un breve retraso para asegurar que se renderice correctamente.
             setTimeout(() => map.invalidateSize(), 200);
 
             apartmentData.forEach(ap => {
                 const marker = L.marker([ap.lat, ap.lng]).addTo(map).bindPopup(`<strong>${ap.name}</strong>`);
                 const cardWrapper = document.querySelector(`.ap-card-wrapper[data-id="${ap.id}"]`);
+                
                 if (cardWrapper) {
                     marker.on('click', () => cardWrapper.querySelector('.saber-mas-btn').click());
-                    cardWrapper.addEventListener('mouseover', () => { marker.openPopup(); highlightCard(ap.id, true); });
-                    cardWrapper.addEventListener('mouseout', () => { marker.closePopup(); highlightCard(ap.id, false); });
+                    cardWrapper.addEventListener('mouseover', () => { 
+                        marker.openPopup(); 
+                        highlightCard(ap.id, true); 
+                    });
+                    cardWrapper.addEventListener('mouseout', () => { 
+                        marker.closePopup(); 
+                        highlightCard(ap.id, false); 
+                    });
                 }
             });
         } catch (e) {
-            console.error("Error al inicializar el mapa Leaflet:", e);
+            console.error("Error crítico al inicializar el mapa Leaflet:", e);
             mapElement.innerHTML = '<div class="alert alert-danger m-3">Error al cargar el mapa.</div>';
         }
     }
 
+    /**
+     * Asigna los manejadores de eventos a los elementos interactivos de la página.
+     */
     function attachEventListeners() {
         if (apartmentGrid) {
             apartmentGrid.addEventListener('click', function(event) {
@@ -263,9 +283,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Abre el modal con los datos de una propiedad específica.
+     * @param {object} propiedad - El objeto con los datos de la propiedad.
+     */
     function openModalWithData(propiedad) {
         if (!modal || !propiedad) return;
         
+        // Rellenar datos del modal
         modal.querySelector('#modalImage').src = propiedad.imgUrl;
         modal.querySelector('#modalTitle').textContent = propiedad.name;
         modal.querySelector('#modalLocation').textContent = `${propiedad.ciudad}, Perú`;
@@ -273,8 +298,10 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.querySelector('#modalRating').textContent = `${propiedad.rating} (${propiedad.reviews} reviews)`;
         modal.querySelector('#modalDescription').textContent = `Descubre este increíble alojamiento en ${propiedad.ciudad}. Con todas las comodidades modernas, es el lugar perfecto para tu próxima aventura.`;
         
+        // Limpiar mensajes y resetear el formulario si existe
         if (reservaMessageDiv) reservaMessageDiv.innerHTML = '';
         if (formReserva) {
+            formReserva.reset(); // Limpia los campos de fecha
             formReserva.querySelector('#propiedadId').value = propiedad.id;
             const botonReservar = formReserva.querySelector('.btn-reservar');
             if(botonReservar) {
@@ -285,71 +312,115 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.style.display = 'block';
     }
     
+    /**
+     * Cierra el modal.
+     */
     function closeModal() {
         if(modal) modal.style.display = 'none';
     }
 
+    /**
+     * Resalta o quita el resaltado de una tarjeta de propiedad.
+     * @param {number} id - El ID de la propiedad.
+     * @param {boolean} highlight - True para resaltar, false para quitar.
+     */
     function highlightCard(id, highlight) {
         const card = document.querySelector(`[data-id="${id}"] .ap-card`);
         if (card) {
-            highlight ? card.classList.add('highlight') : card.classList.remove('highlight');
+            card.classList.toggle('highlight', highlight);
         }
     }
 
-    function handleReservationSubmit(event) {
+    /**
+     * Maneja el envío del formulario de reserva.
+     * @param {Event} event - El evento de envío del formulario.
+     */
+    async function handleReservationSubmit(event) {
         event.preventDefault();
         const botonReservar = this.querySelector('.btn-reservar');
         const formData = new FormData(this);
+
+        // --- Validación del Frontend ---
         const checkin = formData.get('checkin');
         const checkout = formData.get('checkout');
-
-        botonReservar.disabled = true;
-        botonReservar.textContent = 'Procesando...';
-        reservaMessageDiv.className = 'alert alert-info mt-3';
-        reservaMessageDiv.textContent = 'Enviando su solicitud...';
-
         if (!checkin || !checkout || new Date(checkout) <= new Date(checkin)) {
             reservaMessageDiv.className = 'alert alert-danger mt-3';
-            reservaMessageDiv.textContent = 'Las fechas son inválidas. El check-out debe ser posterior al check-in.';
-            botonReservar.disabled = false;
-            botonReservar.textContent = 'Reservar Ahora';
+            reservaMessageDiv.textContent = 'Las fechas son inválidas. La fecha de Check-out debe ser posterior a la de Check-in.';
             return;
         }
 
-        fetch(`${contextPath}/realizar-reserva`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(formData)
-        })
-        .then(response => {
-            return response.json().then(data => {
-                if (!response.ok) {
-                    throw new Error(data.message || 'Ocurrió un error en el servidor.');
-                }
-                return data;
-            });
-        })
-        .then(data => {
+        // --- Actualización de la UI para indicar procesamiento ---
+        botonReservar.disabled = true;
+        botonReservar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+        reservaMessageDiv.className = 'alert alert-info mt-3';
+        reservaMessageDiv.textContent = 'Enviando su solicitud de reserva...';
+
+        try {
+            // --- Llamada a la API con fetch ---
+            const response = await fetch('/HostPilotWebApp/realizar-reserva', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(formData)
+    });
+
+            // Intenta parsear la respuesta como JSON, sin importar si fue exitosa o no.
+            // Esto es más robusto porque los errores (401, 400, 500) también pueden devolver un cuerpo JSON.
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Si la respuesta no fue exitosa (ej. 400, 401, 404, 500), lanza un error con el mensaje del servidor.
+                throw new Error(data.message || `Error del servidor: ${response.status}`);
+            }
+
+            // --- Manejo de la Respuesta Exitosa ---
             if (data.status === 'success') {
                 reservaMessageDiv.className = 'alert alert-success mt-3';
                 reservaMessageDiv.textContent = data.message;
                 botonReservar.textContent = '¡Reservado!';
-                setTimeout(closeModal, 3000);
+                // No deshabilitar el botón, pero el modal se cerrará.
+                setTimeout(closeModal, 3000); 
             } else {
-                throw new Error(data.message || 'No se pudo completar la reserva.');
+                // Caso poco común donde el status es 200 OK pero el JSON indica un fallo.
+                throw new Error(data.message || 'La respuesta del servidor no fue la esperada.');
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            // --- Manejo de Errores (de red o lanzados desde el bloque try) ---
             console.error('Error en la solicitud de reserva:', error);
             reservaMessageDiv.className = 'alert alert-danger mt-3';
-            reservaMessageDiv.textContent = error.message;
+            
+            // Proporciona mensajes de error más específicos y útiles al usuario.
+            if (error.message.includes("Failed to fetch")) {
+                reservaMessageDiv.textContent = "Error de red. No se pudo conectar con el servidor.";
+            } else if (error.message.includes("is not valid JSON")) {
+                 reservaMessageDiv.textContent = "La respuesta del servidor no es válida. Contacte a soporte.";
+            } else {
+                reservaMessageDiv.textContent = error.message; // Muestra el mensaje de error del servidor.
+            }
+
+            // Habilita el botón de nuevo para que el usuario pueda intentar otra vez.
             botonReservar.disabled = false;
             botonReservar.textContent = 'Reservar Ahora';
-        });
+        }
     }
 });
 </script>
+ <script type="text/javascript">
+      (function(d, t) {
+        var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
+        v.onload = function() {
+          window.voiceflow.chat.load({
+            verify: { projectID: '685c870af59e7dd26c0a0d50' },
+            url: 'https://general-runtime.voiceflow.com',
+            versionID: 'production',
+            voice: {
+              url: "https://runtime-api.voiceflow.com"
+            }
+          });
+        }
+        v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
+      })(document, 'script');
+    </script>
 </body>
 </html>

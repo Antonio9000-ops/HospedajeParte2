@@ -3,15 +3,15 @@ package com.hostpilot.config;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-/**
- * Interfaz para la configuración y acceso a la base de datos.
- */
 public interface DatabaseConfig {
-
- 
+    
+    /**
+     * Obtiene una conexión del pool.
+     */
     Connection getConnection() throws SQLException;
-
+    
+    /**
+     * Cierra el pool de conexiones.
+     */
     void close();
-
-
 }

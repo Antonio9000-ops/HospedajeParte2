@@ -51,10 +51,19 @@
         <filter-name>SecurityFilter</filter-name>
         <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
-        
     </filter-mapping>
-
     
+    <!-- SERVLETS Y CONTROLADORES -->
+
+    <servlet>
+        <servlet-name>IndexController</servlet-name>
+        <servlet-class>com.hostpilot.controller.IndexController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>IndexController</servlet-name>
+        <url-pattern></url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>LoginController</servlet-name>
         <servlet-class>com.hostpilot.controller.LoginController</servlet-class>
@@ -91,16 +100,8 @@
         <url-pattern>/usuario</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>AdminController</servlet-name>
-        <servlet-class>com.hostpilot.controller.AdminController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AdminController</servlet-name>
-        <url-pattern>/admin/*</url-pattern>
-    </servlet-mapping>
+  
     
-     <!-- Controlador para la Búsqueda -->
     <servlet>
         <servlet-name>BusquedaController</servlet-name>
         <servlet-class>com.hostpilot.controller.BusquedaController</servlet-class>
@@ -110,7 +111,6 @@
         <url-pattern>/buscar</url-pattern>
     </servlet-mapping>
 
-    <!-- Controlador para Detalles de Propiedad -->
     <servlet>
         <servlet-name>PropiedadController</servlet-name>
         <servlet-class>com.hostpilot.controller.PropiedadController</servlet-class>
@@ -120,36 +120,27 @@
         <url-pattern>/propiedad</url-pattern>
     </servlet-mapping>
     
-    <!-- Controlador para la Página de Reservas -->
     <servlet>
         <servlet-name>ReservaController</servlet-name>
         <servlet-class>com.hostpilot.controller.ReservaController</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ReservaController</servlet-name>
-        <url-pattern>/reservas</url-pattern>
+        <url-pattern>/reservas</url-pattern> 
     </servlet-mapping>
-    
-    
+
+  
     <servlet>
-    <servlet-name>AnfitrionController</servlet-name>
-    <servlet-class>com.hostpilot.controller.AnfitrionController</servlet-class>
-</servlet>
-<servlet-mapping>
-    <servlet-name>AnfitrionController</servlet-name>
-    <url-pattern>/anfitrion</url-pattern>
-</servlet-mapping>
+        <servlet-name>AnfitrionController</servlet-name>
+        <servlet-class>com.hostpilot.controller.AnfitrionController</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AnfitrionController</servlet-name>
+        <url-pattern>/anfitrion</url-pattern>
+    </servlet-mapping>
 
-<servlet>
-    <servlet-name>IndexController</servlet-name>
-    <servlet-class>com.hostpilot.controller.IndexController</servlet-class>
-</servlet>
-<servlet-mapping>
-    <servlet-name>IndexController</servlet-name>
-    <url-pattern></url-pattern> <!-- Mapeo a la raíz -->
-</servlet-mapping>
-
-
+  
+    <!-- FIN DE LA CORRECCIÓN -->
 
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
