@@ -73,14 +73,7 @@
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>RegistroController</servlet-name>
-        <servlet-class>com.hostpilot.controller.RegistroController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>RegistroController</servlet-name>
-        <url-pattern>/registro</url-pattern>
-    </servlet-mapping>
+
 
     <servlet>
         <servlet-name>LogoutController</servlet-name>

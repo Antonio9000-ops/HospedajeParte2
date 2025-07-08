@@ -1,6 +1,7 @@
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\model\UsuarioDTO.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\config\ConfigManager.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\controller\AnfitrionController.java
+C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\controller\MetricsServlet.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\controller\ReservaController.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\security\BCryptEncryptionService.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\service\PropiedadServiceImpl.java
@@ -13,6 +14,7 @@ C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\Host
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\security\InputValidator.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\controller\RegistroController.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\dao\DAOException.java
+C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\config\MetricsConfig.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\security\SecurityFilter.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\controller\UsuarioController.java
 C:\Users\Anthony.DESKTOP-9AHD65A\Documents\NetBeansProjects\HospedajeParte2\HostPilotWebApp\src\main\java\com\hostpilot\config\MySQLDatabaseConfig.java

@@ -1,3 +1,4 @@
+com\hostpilot\controller\MetricsServlet.class
 com\hostpilot\model\Reserva.class
 com\hostpilot\security\SessionManager$1.class
 com\hostpilot\dao\DAOException.class
@@ -34,5 +35,6 @@ com\hostpilot\config\MySQLDatabaseConfig.class
 com\hostpilot\dao\ReservaDAOImpl.class
 com\hostpilot\config\ConfigManager.class
 com\hostpilot\service\PropiedadService.class
+com\hostpilot\config\MetricsConfig.class
 com\hostpilot\security\SecurityFilter.class
 com\hostpilot\controller\AnfitrionController.class

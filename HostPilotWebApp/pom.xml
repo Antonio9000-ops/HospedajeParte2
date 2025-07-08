@@ -17,55 +17,62 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <failOnMissingWebXml>false</failOnMissingWebXml>
 
+        <!-- Versión de Micrometer verificada y estable -->
+        <micrometer.version>1.12.6</micrometer.version>
+        
         <javaee.web.api.version>7.0</javaee.web.api.version>
         <mysql.connector.version>8.0.33</mysql.connector.version>
         <tomcat.jdbc.version>8.5.99</tomcat.jdbc.version>
         <jbcrypt.version>0.4</jbcrypt.version>
         <jstl.version>1.2</jstl.version>
-
+        <junit.jupiter.version>5.10.2</junit.jupiter.version> 
+        <mockito.version>5.11.0</mockito.version>
         <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
         <maven.war.plugin.version>3.3.2</maven.war.plugin.version>
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
-        
-        <junit.jupiter.version>5.10.2</junit.jupiter.version> 
-        <mockito.version>5.11.0</mockito.version>
     </properties>
 
     <dependencies>
-        <!-- Java EE Web API (para Servlets, JSP, etc.) -->
+        <!-- Dependencias básicas del proyecto -->
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>${javaee.web.api.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- JSTL (para tags como c:forEach) -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>${jstl.version}</version>
         </dependency>
-
-        <!-- Driver de MySQL -->
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.connector.version}</version>
         </dependency>
-
-        <!-- Pool de Conexiones de Tomcat -->
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
             <version>${tomcat.jdbc.version}</version>
         </dependency>
-
-        <!-- Encriptación de Contraseñas -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
             <version>${jbcrypt.version}</version>
+        </dependency>
+        
+        <!-- ======================================================= -->
+        <!--   Dependencias de Micrometer (VERSIÓN FINAL Y CORRECTA) -->
+        <!-- ======================================================= -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
         </dependency>
         
         <!-- Dependencias de Testing -->
@@ -102,19 +109,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven.war.plugin.version}</version>
-                <configuration>
-                    <failOnMissingWebXml>${failOnMissingWebXml}</failOnMissingWebXml>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

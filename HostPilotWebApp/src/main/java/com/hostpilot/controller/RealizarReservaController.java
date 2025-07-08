@@ -1,6 +1,7 @@
 package com.hostpilot.controller;
 
 import com.hostpilot.config.DatabaseConfig;
+import com.hostpilot.config.MetricsConfig; // Importar la configuración de métricas
 import com.hostpilot.config.MySQLDatabaseConfig;
 import com.hostpilot.dao.DAOException;
 import com.hostpilot.dao.ReservaDAO;
@@ -27,39 +28,23 @@ public class RealizarReservaController extends HttpServlet {
     private ReservaDAO reservaDAO;
 
     /**
-     * Inicializa el servlet y sus dependencias.
+     * Inicializa el servlet, sus dependencias y registra las métricas.
      * @throws ServletException si la inicialización falla.
      */
     @Override
     public void init() throws ServletException {
-        // FIX: Bloque init() simplificado para eliminar código duplicado.
-        LOGGER.info("Inicializando RealizarReservaController...");
+        // --- CÓDIGO CORREGIDO Y LIMPIO ---
+        // Se elimina el bloque duplicado y se añade un log claro.
+        LOGGER.info("########## INICIALIZANDO SERVLET: RealizarReservaController ##########");
         try {
-            // Se recomienda instanciar la configuración una sola vez si es posible,
-            // pero para un servlet, instanciarla aquí está bien.
             DatabaseConfig dbConfig = new MySQLDatabaseConfig();
             this.reservaDAO = new ReservaDAOImpl(dbConfig);
             LOGGER.info("RealizarReservaController inicializado exitosamente con su DAO.");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Fallo crítico al inicializar RealizarReservaController", e);
-            // Lanzar ServletException impide que el servlet se ponga en servicio si la BD falla.
             throw new ServletException("No se pudo inicializar el DAO de reservas", e);
         }
-         // AÑADE ESTA LÍNEA JUSTO AL PRINCIPIO
-    System.out.println("########## CARGANDO SERVLET: RealizarReservaController ##########");
-
-    LOGGER.info("Inicializando RealizarReservaController...");
-    try {
-        DatabaseConfig dbConfig = new MySQLDatabaseConfig();
-        this.reservaDAO = new ReservaDAOImpl(dbConfig);
-        LOGGER.info("RealizarReservaController inicializado exitosamente con su DAO.");
-    } catch (Exception e) {
-        LOGGER.log(Level.SEVERE, "Fallo crítico al inicializar RealizarReservaController", e);
-        throw new ServletException("No se pudo inicializar el DAO de reservas", e);
     }
-    }
-    
-    
     
     /**
      * Maneja las solicitudes POST para crear una nueva reserva.
@@ -104,36 +89,46 @@ public class RealizarReservaController extends HttpServlet {
             
             // 3. Crear el Objeto Reserva
             Reserva nuevaReserva = new Reserva();
-            nuevaReserva.setIdUsuario(idUsuarioLong.intValue()); // Convertir Long a int
+            nuevaReserva.setIdUsuario(idUsuarioLong.intValue());
             nuevaReserva.setIdPropiedad(idPropiedad);
             nuevaReserva.setFechaCheckin(checkin);
             nuevaReserva.setFechaCheckout(checkout);
-            nuevaReserva.setEstado("CONFIRMADA"); // Asignar estado por defecto
+            nuevaReserva.setEstado("CONFIRMADA");
 
             // 4. Persistir la Reserva usando el DAO
             int nuevoId = reservaDAO.crear(nuevaReserva);
 
-            // La lógica de verificar si nuevoId > 0 ya está implícita en el DAO,
-            // que lanzará una excepción si falla.
+            // --- INTEGRACIÓN CON PROMETHEUS ---
+            // Incrementar el contador de reservas exitosas.
+            MetricsConfig.getRegistry().counter("reservas_creadas_total", "status", "success").increment();
+            // ------------------------------------
             
             LOGGER.info("Reserva creada exitosamente con ID: " + nuevoId + " para Usuario ID " + idUsuarioLong);
                 
             // 5. Enviar Respuesta de Éxito
-            response.setStatus(HttpServletResponse.SC_CREATED); // 201 Created es más apropiado para creación de recursos
-            // FIX: La línea de respuesta JSON se completó correctamente.
+            response.setStatus(HttpServletResponse.SC_CREATED);
             response.getWriter().write("{\"status\":\"success\", \"message\":\"¡Alojamiento reservado exitosamente!\", \"reservaId\":" + nuevoId + "}");
 
-        // FIX: Se añadieron bloques catch para un manejo de errores completo y robusto.
         } catch (NumberFormatException e) {
+            MetricsConfig.getRegistry().counter("reservas_creadas_total", "status", "error_formato_id").increment();
             LOGGER.warning("ID de propiedad inválido: " + propiedadIdStr);
             sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "El ID de la propiedad debe ser un número válido.");
+            
         } catch (DateTimeParseException e) {
+            MetricsConfig.getRegistry().counter("reservas_creadas_total", "status", "error_formato_fecha").increment();
             LOGGER.warning("Formato de fecha inválido. Check-in: " + checkinStr + ", Check-out: " + checkoutStr);
             sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "El formato de las fechas debe ser AAAA-MM-DD.");
+            
         } catch (DAOException e) {
+            // --- INTEGRACIÓN CON PROMETHEUS ---
+            // Incrementar el contador de reservas fallidas por error en la base de datos.
+            MetricsConfig.getRegistry().counter("reservas_creadas_total", "status", "error_dao").increment();
+            // ------------------------------------
             LOGGER.log(Level.SEVERE, "Error al intentar crear la reserva en la base de datos", e);
             sendJsonError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error en el servidor al procesar tu reserva. Inténtalo más tarde.");
+
         } catch (Exception e) {
+            MetricsConfig.getRegistry().counter("reservas_creadas_total", "status", "error_inesperado").increment();
             LOGGER.log(Level.SEVERE, "Error inesperado en RealizarReservaController", e);
             sendJsonError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado.");
         }
@@ -144,7 +139,6 @@ public class RealizarReservaController extends HttpServlet {
      */
     private void sendJsonError(HttpServletResponse response, int statusCode, String message) throws IOException {
         response.setStatus(statusCode);
-        // Escapar comillas dobles en el mensaje para evitar un JSON inválido
         String safeMessage = message.replace("\"", "\\\"");
         response.getWriter().write(String.format("{\"status\":\"error\", \"message\":\"%s\"}", safeMessage));
     }
