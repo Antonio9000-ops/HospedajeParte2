@@ -77,7 +77,7 @@
             <a href="${pageContext.request.contextPath}/">Inicio</a>
             <a href="${pageContext.request.contextPath}/reservas">Reserva</a>
             <a href="#">Zonas</a>
-             <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
+            <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
         </nav>
     </header>
 
@@ -87,29 +87,28 @@
             <div class="foto-principal">
                 <!-- Imagen principal ahora es dinámica -->
                 <c:if test="${not empty propiedadPrincipal}">
-                    <img src="${propiedadPrincipal.imgUrl}" alt="<c:out value='${propiedadPrincipal.nombre}'/>">
+                    <img src="${pageContext.request.contextPath}/${propiedadPrincipal.imgUrl}" alt="<c:out value='${propiedadPrincipal.titulo}'/>">
                 </c:if>
             </div>
             <div class="carrusel-container">
                 <button class="carrusel-btn" onclick="scrollCarrusel('carrusel-1', -1)">◀</button>
                 <div class="carrusel" id="carrusel-1">
-                    
                     <!-- Carrusel 1 generado con JSTL -->
                     <c:forEach items="${listaCarrusel1}" var="prop">
-            <div class="tarjeta" 
-                 data-id="${prop.id}" 
-                 data-nombre="<c:out value='${prop.nombre}'/>" 
-                 data-ciudad="<c:out value='${prop.ciudad}'/>"
-                 data-precio="<fmt:formatNumber value='${prop.precio}' type='number' minFractionDigits='0'/>"
-                 data-rating="${prop.rating}"
-                 data-img-url="${prop.imgUrl}">
-                <img src="${prop.imgUrl}" alt="<c:out value='${prop.nombre}'/>">
-                
-                <button class="saber-mas">Saber más</button>
-                <p><c:out value="${prop.nombre}"/></p>
-            </div>
-        </c:forEach>
-
+                        <div class="tarjeta" 
+                             data-id="${prop.id}" 
+                             data-nombre="<c:out value='${prop.titulo}'/>"
+                             data-ciudad="<c:out value='${prop.ciudad}'/>"
+                             data-precio="${prop.precioPorNoche}"
+                             data-rating="${prop.rating}"
+                             data-descripcion="<c:out value='${prop.descripcion}'/>"
+                             data-img-url="${pageContext.request.contextPath}/${prop.imgUrl}">
+                            
+                            <img src="${pageContext.request.contextPath}/${prop.imgUrl}" alt="<c:out value='${prop.titulo}'/>">
+                            <button class="saber-mas">Saber más</button>
+                            <p><c:out value="${prop.titulo}"/></p>
+                        </div>
+                    </c:forEach>
                 </div>
                 <button class="carrusel-btn" onclick="scrollCarrusel('carrusel-1', 1)">▶</button>
             </div>
@@ -119,31 +118,32 @@
 
         <h1>Tu mejor lugar para relajarte</h1>
         <div class="contenido">
-             <div class="carrusel-container">
+            <div class="carrusel-container">
                 <button class="carrusel-btn" onclick="scrollCarrusel('carrusel-2', -1)">◀</button>
                 <div class="carrusel" id="carrusel-2">
-
                     <!-- Carrusel 2 generado con JSTL -->
-                     <c:forEach items="${listaCarrusel2}" var="prop">
-            <div class="tarjeta"
-                 data-id="${prop.id}" 
-                 data-nombre="<c:out value='${prop.nombre}'/>" 
-                 data-ciudad="<c:out value='${prop.ciudad}'/>"
-                 data-precio="<fmt:formatNumber value='${prop.precio}' type='number' minFractionDigits='0'/>"
-                 data-rating="${prop.rating}"
-                 data-img-url="${prop.imgUrl}">
-                <img src="${prop.imgUrl}" alt="<c:out value='${prop.nombre}'/>">
-                <button class="saber-mas">Saber más</button>
-                <p><c:out value="${prop.nombre}"/></p>
-            </div>
-        </c:forEach>
-
+                    <c:forEach items="${listaCarrusel2}" var="prop">
+                        <div class="tarjeta" 
+                             data-id="${prop.id}" 
+                             data-nombre="<c:out value='${prop.titulo}'/>"
+                             data-ciudad="<c:out value='${prop.ciudad}'/>"
+                             data-precio="${prop.precioPorNoche}"
+                             data-rating="${prop.rating}"
+                             data-descripcion="<c:out value='${prop.descripcion}'/>"
+                             data-img-url="${pageContext.request.contextPath}/${prop.imgUrl}">
+                            
+                            <img src="${pageContext.request.contextPath}/${prop.imgUrl}" alt="<c:out value='${prop.titulo}'/>">
+                            <button class="saber-mas">Saber más</button>
+                            <p><c:out value="${prop.titulo}"/></p>
+                        </div>
+                    </c:forEach>
                 </div>
                 <button class="carrusel-btn" onclick="scrollCarrusel('carrusel-2', 1)">▶</button>
             </div>
         </div>
     </main>
-         <div id="propiedadModal" class="modal">
+    
+    <div id="propiedadModal" class="modal">
         <div class="modal-content">
             <span class="modal-close">×</span>
             <div class="modal-body">
@@ -158,53 +158,38 @@
             </div>
         </div>
     </div>
-     <script>
+    
+    <script>
         function scrollCarrusel(carruselId, direccion) {
             const carrusel = document.getElementById(carruselId);
-            const scrollAmount = 240;
-            carrusel.scrollBy({ left: scrollAmount * direccion, behavior: 'smooth' });
+            carrusel.scrollBy({ left: 260, behavior: 'smooth' }); // Ajustado para un scroll fijo
         }
-         document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const modal = document.getElementById('propiedadModal');
             const modalCloseButton = document.querySelector('.modal-close');
             
-            // Evento para todos los botones "Saber más"
             document.querySelectorAll('.saber-mas').forEach(button => {
                 button.addEventListener('click', function() {
-                    const tarjeta = this.closest('.tarjeta'); // Encuentra la tarjeta padre
+                    const tarjeta = this.closest('.tarjeta');
                     
-                    // Obtener datos de los atributos data-* de la tarjeta
-                    const nombre = tarjeta.dataset.nombre;
-                    const ciudad = tarjeta.dataset.ciudad;
-                    const precio = tarjeta.dataset.precio;
-                    const rating = tarjeta.dataset.rating;
-                    const imgUrl = tarjeta.dataset.imgUrl;
-
-                    // Poblar el modal con los datos
-                    document.getElementById('modalImage').src = imgUrl;
-                    document.getElementById('modalTitle').textContent = nombre;
-                    document.getElementById('modalLocation').textContent = ciudad + ", Perú";
-                    document.getElementById('modalPrice').textContent = precio;
-                    document.getElementById('modalRating').textContent = rating;
+                    document.getElementById('modalImage').src = tarjeta.dataset.imgUrl;
+                    document.getElementById('modalTitle').textContent = tarjeta.dataset.nombre;
+                    document.getElementById('modalLocation').textContent = tarjeta.dataset.ciudad + ", Perú";
+                    document.getElementById('modalPrice').textContent = tarjeta.dataset.precio;
+                    document.getElementById('modalRating').textContent = tarjeta.dataset.rating;
+                    document.getElementById('modalDescription').textContent = tarjeta.dataset.descripcion;
                     
-                    // Añadir una descripción inventada
-                    document.getElementById('modalDescription').textContent = "Este es un increíble alojamiento con todas las comodidades modernas. Perfecto para una escapada romántica o un viaje de negocios. Disfruta de vistas espectaculares y un ambiente inigualable.";
-                    
-                    // Mostrar el modal
                     modal.style.display = 'block';
                 });
             });
 
-            // Función para cerrar el modal
             function closeModal() {
                 modal.style.display = 'none';
             }
 
-            // Cerrar al hacer clic en la 'x'
             if (modalCloseButton) {
                 modalCloseButton.onclick = closeModal;
             }
-
        
             window.onclick = function(event) {
                 if (event.target == modal) {
@@ -213,23 +198,19 @@
             };
         });
     </script>
-     <script type="text/javascript">
+    
+    <script type="text/javascript">
       (function(d, t) {
         var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
         v.onload = function() {
           window.voiceflow.chat.load({
             verify: { projectID: '685c870af59e7dd26c0a0d50' },
             url: 'https://general-runtime.voiceflow.com',
-            versionID: 'production',
-            voice: {
-              url: "https://runtime-api.voiceflow.com"
-            }
+            versionID: 'production'
           });
         }
         v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
       })(document, 'script');
     </script>
-    
-    
 </body>
 </html>

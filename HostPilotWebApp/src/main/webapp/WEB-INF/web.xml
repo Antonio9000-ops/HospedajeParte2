@@ -8,20 +8,28 @@
     <display-name>HostPilot Web Application</display-name>
     <description>Sistema de gestión HostPilot con arquitectura MVC, DAO, SOLID</description>
 
+    <!-- Parámetro de contexto (opcional) -->
     <context-param>
         <param-name>environment</param-name>
         <param-value>development</param-value>
     </context-param>
 
+    <!-- Configuración de la Sesión -->
     <session-config>
-        <session-timeout>30</session-timeout>
+        <session-timeout>30</session-timeout> <!-- minutos -->
         <cookie-config>
             <http-only>true</http-only>
-            <secure>false</secure>
+            <!-- En producción, esto debería ser 'true' si usas HTTPS -->
+            <secure>false</secure> 
         </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
+    <!-- ======================================================= -->
+    <!--                  FILTROS GLOBALES                       -->
+    <!-- ======================================================= -->
+
+    <!-- Filtro para forzar la codificación UTF-8 en todas las peticiones -->
     <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
@@ -39,13 +47,10 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <!-- Filtro de Seguridad Personalizado -->
     <filter>
         <filter-name>SecurityFilter</filter-name>
         <filter-class>com.hostpilot.security.SecurityFilter</filter-class>
-        <init-param>
-            <param-name>excludePatterns</param-name>
-            <param-value>/css/,/js/,/images/,/favicon.ico</param-value>
-        </init-param>
     </filter>
     <filter-mapping>
         <filter-name>SecurityFilter</filter-name>
@@ -53,105 +58,29 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     
-    <!-- SERVLETS Y CONTROLADORES -->
+ 
 
-    <servlet>
-        <servlet-name>IndexController</servlet-name>
-        <servlet-class>com.hostpilot.controller.IndexController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>IndexController</servlet-name>
-        <url-pattern></url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>LoginController</servlet-name>
-        <servlet-class>com.hostpilot.controller.LoginController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LoginController</servlet-name>
-        <url-pattern>/login</url-pattern>
-    </servlet-mapping>
-
-
-
-    <servlet>
-        <servlet-name>LogoutController</servlet-name>
-        <servlet-class>com.hostpilot.controller.LogoutController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LogoutController</servlet-name>
-        <url-pattern>/logout</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>UsuarioController</servlet-name>
-        <servlet-class>com.hostpilot.controller.UsuarioController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>UsuarioController</servlet-name>
-        <url-pattern>/usuario</url-pattern>
-    </servlet-mapping>
-
-  
-    
-    <servlet>
-        <servlet-name>BusquedaController</servlet-name>
-        <servlet-class>com.hostpilot.controller.BusquedaController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>BusquedaController</servlet-name>
-        <url-pattern>/buscar</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>PropiedadController</servlet-name>
-        <servlet-class>com.hostpilot.controller.PropiedadController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>PropiedadController</servlet-name>
-        <url-pattern>/propiedad</url-pattern>
-    </servlet-mapping>
-    
-    <servlet>
-        <servlet-name>ReservaController</servlet-name>
-        <servlet-class>com.hostpilot.controller.ReservaController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>ReservaController</servlet-name>
-        <url-pattern>/reservas</url-pattern> 
-    </servlet-mapping>
-
-  
-    <servlet>
-        <servlet-name>AnfitrionController</servlet-name>
-        <servlet-class>com.hostpilot.controller.AnfitrionController</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>AnfitrionController</servlet-name>
-        <url-pattern>/anfitrion</url-pattern>
-    </servlet-mapping>
-
-  
-    <!-- FIN DE LA CORRECCIÓN -->
-
+    <!-- Página de bienvenida -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
+    <!-- Páginas de Error Personalizadas -->
     <error-page>
         <error-code>403</error-code>
-        <location>/error/403.jsp</location>
+        <location>/WEB-INF/jsp/error/403.jsp</location> <!-- Movido a una carpeta segura -->
     </error-page>
     <error-page>
         <error-code>404</error-code>
-        <location>/error/404.jsp</location>
+        <location>/WEB-INF/jsp/error/404.jsp</location> <!-- Movido a una carpeta segura -->
     </error-page>
     <error-page>
         <error-code>500</error-code>
-        <location>/error/500.jsp</location>
+        <location>/WEB-INF/jsp/error/500.jsp</location> <!-- Movido a una carpeta segura -->
     </error-page>
 
+    <!-- Mapeos MIME (generalmente no son necesarios en servidores modernos como Tomcat) -->
+    <!-- Los he dejado por si los necesitas por alguna razón específica -->
     <mime-mapping>
         <extension>css</extension>
         <mime-type>text/css</mime-type>

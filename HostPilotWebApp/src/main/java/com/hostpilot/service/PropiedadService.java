@@ -1,13 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.hostpilot.service;
 
+import com.hostpilot.model.Propiedad;
+import java.util.List;
+
 /**
- *
- * @author Anthony
+ * Interfaz para la lógica de negocio relacionada con las propiedades.
  */
-public class PropiedadService {
+public interface PropiedadService {
     
+    /**
+     * Obtiene una lista de todas las propiedades disponibles.
+     * @return Una lista de objetos Propiedad.
+     * @throws ServiceException si ocurre un error durante la operación.
+     */
+    List<Propiedad> obtenerTodasLasPropiedades() throws ServiceException;
+    
+    // Aquí puedes añadir más métodos de negocio en el futuro
 }

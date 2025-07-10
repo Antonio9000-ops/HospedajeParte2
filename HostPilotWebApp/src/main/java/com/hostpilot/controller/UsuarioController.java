@@ -15,11 +15,13 @@ import java.net.URLEncoder;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.annotation.WebServlet;
 
 /**
  * Controlador para las acciones del usuario una vez que ha iniciado sesión.
 
  */
+@WebServlet("/usuario")
 public class UsuarioController extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(UsuarioController.class.getName());

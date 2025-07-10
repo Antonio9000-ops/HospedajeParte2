@@ -6,7 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
-
+import javax.servlet.annotation.WebServlet;
+@WebServlet("/buscar")
 public class BusquedaController extends HttpServlet {
     
     private static final Logger LOGGER = Logger.getLogger(BusquedaController.class.getName());

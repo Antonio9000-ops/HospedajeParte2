@@ -58,147 +58,158 @@
     </style>
 </head>
 <body>
-<div class="page-wrapper">
-    <header class="header-container">
-        <!-- INICIO: HTML del Header copiado aquí -->
-        <div class="top-bar">
-            <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/img/logo.png" alt="Hostpilot logo" class="logo"></a>
-            <form action="${pageContext.request.contextPath}/buscar" method="GET" class="search-container">
-                <input type="text" name="q" placeholder="Encuentra tu lugar ideal">
-                <button type="submit">🔍</button>
-            </form>
-            <div class="user-menu">
-                <span>☰</span>
-                <c:choose>
-                    <c:when test="${not empty sessionScope.userId}">
-                        <a href="${pageContext.request.contextPath}/usuario?action=perfil" title="Mi Perfil"><span>👤</span></a>
-                        <a href="${pageContext.request.contextPath}/logout" class="user-logout" title="Cerrar Sesión">Salir</a>
-                    </c:when>
-                    <c:otherwise>
-                        <a href="${pageContext.request.contextPath}/login" title="Iniciar Sesión / Registrarse"><span>👤</span></a>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </div>
-        <nav>
-            <a href="${pageContext.request.contextPath}/">Inicio</a>
-            <a href="${pageContext.request.contextPath}/reservas" class="active">Reserva</a>
-            <a href="#">Zonas</a>
-             <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
-        </nav>
-        <!-- FIN: HTML del Header -->
-    </header>
-
-    <div class="page-layout">
-        <div class="left-col">
-            <div class="airbnb-wrapper">
-                <h2 class="text-center mb-4">Alojamientos Disponibles</h2>
-                <div class="ap-grid" id="apartmentGrid">
-                    
-                    <c:forEach items="${listaPropiedades}" var="prop">
-                        <div class="ap-card-wrapper" 
-                             data-id="${prop.id}" 
-                             data-nombre="<c:out value='${prop.nombre}'/>"
-                             data-ciudad="<c:out value='${prop.ciudad}'/>"
-                             data-precio="${prop.precio}"
-                             data-rating="${prop.rating}"
-                             data-reviews="${prop.reviews}"
-                             data-img-url="${prop.imgUrl}">
-                             
-                            <div class="ap-card">
-                                <img src="${prop.imgUrl}" alt="<c:out value='${prop.nombre}'/>">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <strong class="ap-title"><c:out value="${prop.nombre}"/></strong>
-                                        <div class="rating">★ <c:out value="${prop.rating}"/></div>
-                                    </div>
-                                    <div class="text-muted small"><c:out value="${prop.ciudad}"/>, Perú</div>
-                                    <div><span class="price">S/<fmt:formatNumber value="${prop.precio}" type="number" minFractionDigits="0"/></span> noche</div>
-                                    <button class="saber-mas-btn mt-2 btn btn-sm btn-primary">Ver Detalles</button>
-                                </div>
-                            </div>
-                        </div>
-                    </c:forEach>
-                    
+    <div class="page-wrapper">
+        <header class="header-container">
+            <%-- COPIA Y PEGA TU HEADER AQUÍ --%>
+            <div class="top-bar">
+                 <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/img/logo.png" alt="Hostpilot logo" class="logo"></a>
+                <form action="${pageContext.request.contextPath}/buscar" method="GET" class="search-container">
+                    <input type="text" name="q" placeholder="Encuentra tu lugar ideal">
+                    <button type="submit">🔍</button>
+                </form>
+                <div class="user-menu">
+                    <span>☰</span>
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.userId}">
+                            <a href="${pageContext.request.contextPath}/usuario?action=perfil" title="Mi Perfil"><span>👤</span></a>
+                            <a href="${pageContext.request.contextPath}/logout" class="user-logout" title="Cerrar Sesión">Salir</a>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${pageContext.request.contextPath}/login" title="Iniciar Sesión / Registrarse"><span>👤</span></a>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </div>
-        </div>
-        <div class="right-col">
-            <div id="map"></div>
-        </div>
-    </div>
-</div>
+            <nav>
+                <a href="${pageContext.request.contextPath}/">Inicio</a>
+                <a href="${pageContext.request.contextPath}/reservas" class="active">Reserva</a>
+                <a href="#">Zonas</a>
+                 <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
+            </nav>
+        </header>
 
-<!-- HTML del Modal (se mantiene igual) -->
-<div id="propiedadModal" class="modal">
-    <div class="modal-content">
-        <span class="modal-close">×</span>
-        <div class="modal-body">
-            <img id="modalImage" src="" alt="Imagen de la propiedad" class="modal-image">
-            <h2 id="modalTitle" class="modal-title"></h2>
-            <p id="modalLocation" class="modal-location"></p>
-            <div id="modalDetails" class="modal-details">
-                <p><strong>Precio por noche:</strong> S/<span id="modalPrice"></span></p>
-                <p><strong>Rating:</strong> ★ <span id="modalRating"></span></p>
-                <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
-            </div>
-            
-            <div class="reserva-form">
-                <c:choose>
-                    <c:when test="${not empty sessionScope.userId}">
-                        <!-- Formulario de reserva para usuarios logueados -->
-                        <form id="formReserva">
-                            <input type="hidden" id="propiedadId" name="propiedadId">
-                            <div class="row">
-                                <div class="col-md-6 form-group">
-                                    <label for="checkin">Fecha de Check-in:</label>
-                                    <input type="date" id="checkin" name="checkin" class="form-control" required>
-                                </div>
-                                <div class="col-md-6 form-group">
-                                    <label for="checkout">Fecha de Check-out:</label>
-                                    <input type="date" id="checkout" name="checkout" class="form-control" required>
+        <div class="page-layout">
+            <div class="left-col">
+                <div class="airbnb-wrapper">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="text-center mb-0">Alojamientos Disponibles</h2>
+                        <a href="${pageContext.request.contextPath}/exportar/alojamientos" class="btn btn-success">
+                            Exportar a Excel
+                        </a>
+                    </div>
+                    
+                    <div class="ap-grid" id="apartmentGrid">
+                        <c:forEach items="${listaPropiedades}" var="prop">
+                            <div class="ap-card-wrapper" 
+                                 data-id="${prop.id}" 
+                                 data-nombre="<c:out value='${prop.titulo}'/>"
+                                 data-ciudad="<c:out value='${prop.ciudad}'/>"
+                                 data-precio="${prop.precioPorNoche}"
+                                 data-rating="${prop.rating}"
+                                 data-reviews="${prop.reviews}"
+                                 data-descripcion="<c:out value='${prop.descripcion}'/>"
+                                 data-img-url="${pageContext.request.contextPath}/${prop.imgUrl}">
+                                 
+                                <div class="ap-card">
+                                    <img src="${pageContext.request.contextPath}/${prop.imgUrl}" alt="<c:out value='${prop.titulo}'/>">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <strong class="ap-title"><c:out value="${prop.titulo}"/></strong>
+                                            <div class="rating">★ <c:out value="${prop.rating}"/></div>
+                                        </div>
+                                        <div class="text-muted small"><c:out value="${prop.ciudad}"/>, Perú</div>
+                                        <div>
+                                            <span class="price">
+                                                S/<fmt:formatNumber value="${prop.precioPorNoche}" type="number" minFractionDigits="0" maxFractionDigits="0"/>
+                                            </span> noche
+                                        </div>
+                                        <button class="saber-mas-btn mt-2 btn btn-sm btn-primary">Ver Detalles</button>
+                                    </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn-reservar mt-3">Reservar Ahora</button>
-                        </form>
-                    </c:when>
-                    <c:otherwise>
-                        <!-- Mensaje para usuarios no logueados -->
-                        <div class="login-prompt alert alert-warning">
-                            <h4>Para reservar, necesitas una cuenta</h4>
-                            <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Iniciar Sesión</a>
-                            o
-                            <a href="${pageContext.request.contextPath}/registro" class="btn btn-secondary">Registrarse</a>
-                        </div>
-                    </c:otherwise>
-                </c:choose>
+                        </c:forEach>
+                    </div>
+                </div>
             </div>
-             <div id="reservaMessage" class="mt-3"></div> <!-- Para mostrar mensajes de éxito/error -->
+            <div class="right-col">
+                <div id="map"></div>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
+    <div id="propiedadModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">×</span>
+            <div class="modal-body">
+                <img id="modalImage" src="" alt="Imagen de la propiedad" class="modal-image">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <p id="modalLocation" class="modal-location"></p>
+                <div id="modalDetails" class="modal-details">
+                    <p><strong>Precio por noche:</strong> S/<span id="modalPrice"></span></p>
+                    <p><strong>Rating:</strong> ★ <span id="modalRating"></span></p>
+                    <p><strong>Descripción:</strong> <span id="modalDescription"></span></p>
+                </div>
+                
+                <div class="reserva-form">
+                    <c:choose>
+                        <c:when test="${not empty sessionScope.userId}">
+                            <form id="formReserva">
+                                <input type="hidden" id="propiedadId" name="propiedadId">
+                                <div class="row">
+                                    <div class="col-md-6 form-group">
+                                        <label for="checkin">Fecha de Check-in:</label>
+                                        <input type="date" id="checkin" name="checkin" class="form-control" required>
+                                    </div>
+                                    <div class="col-md-6 form-group">
+                                        <label for="checkout">Fecha de Check-out:</label>
+                                        <input type="date" id="checkout" name="checkout" class="form-control" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-reservar mt-3">Reservar Ahora</button>
+                            </form>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="login-prompt alert alert-warning">
+                                <h4>Para reservar, necesitas una cuenta</h4>
+                                <a href="${pageContext.request.contextPath}/login" class="btn btn-primary">Iniciar Sesión</a>
+                                o
+                                <a href="${pageContext.request.contextPath}/registro" class="btn btn-secondary">Registrarse</a>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+                 <div id="reservaMessage" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <%-- SCRIPT COMPLETO Y CORREGIDO PARA RESERVAS.JSP --%>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+   <script>
 document.addEventListener('DOMContentLoaded', function() {
     // --- VARIABLES Y CONSTANTES ---
     const contextPath = "${pageContext.request.contextPath}";
+    
+    // === LA CORRECCIÓN ESTÁ AQUÍ ===
+    // Ahora construimos el array de JavaScript con los nombres de propiedad correctos
     const apartmentData = [
         <c:forEach items="${listaPropiedades}" var="prop" varStatus="loop">
             { 
                 id: ${prop.id}, 
-                name: '<c:out value="${prop.nombre}"/>', 
+                name: '<c:out value="${prop.titulo}"/>',       // CORREGIDO de nombre a titulo
                 lat: ${prop.lat}, 
                 lng: ${prop.lng},
                 ciudad: '<c:out value="${prop.ciudad}"/>',
-                precio: <c:out value="${prop.precio}"/>,
+                precio: ${prop.precioPorNoche}, // CORREGIDO de precio a precioPorNoche
                 rating: ${prop.rating},
                 reviews: ${prop.reviews},
-                imgUrl: '${prop.imgUrl}'
+                descripcion: '<c:out value="${prop.descripcion}"/>', // Añadido
+                imgUrl: '${pageContext.request.contextPath}/${prop.imgUrl}'
             }<c:if test="${not loop.last}">,</c:if>
         </c:forEach>
     ];
+    // === FIN DE LA CORRECCIÓN ===
 
     // Elementos del DOM
     const apartmentGrid = document.getElementById('apartmentGrid');
@@ -214,50 +225,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- FUNCIONES ---
 
-    /**
-     * Inicializa el mapa Leaflet y añade los marcadores para cada propiedad.
-     */
     function initMap() {
-        if (!mapElement) {
-            console.error("Elemento del mapa no encontrado en el DOM.");
-            return;
-        }
+        if (!mapElement) { console.error("Elemento del mapa no encontrado."); return; }
         try {
-            const map = L.map(mapElement).setView([-9.19, -75.0152], 5); // Vista general de Perú
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-                subdomains: 'abcd',
-                maxZoom: 20
+            const map = L.map(mapElement).setView([-9.19, -75.0152], 5);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CARTO'
             }).addTo(map);
             
-            // Invalida el tamaño del mapa después de un breve retraso para asegurar que se renderice correctamente.
             setTimeout(() => map.invalidateSize(), 200);
 
             apartmentData.forEach(ap => {
                 const marker = L.marker([ap.lat, ap.lng]).addTo(map).bindPopup(`<strong>${ap.name}</strong>`);
                 const cardWrapper = document.querySelector(`.ap-card-wrapper[data-id="${ap.id}"]`);
-                
                 if (cardWrapper) {
                     marker.on('click', () => cardWrapper.querySelector('.saber-mas-btn').click());
-                    cardWrapper.addEventListener('mouseover', () => { 
-                        marker.openPopup(); 
-                        highlightCard(ap.id, true); 
-                    });
-                    cardWrapper.addEventListener('mouseout', () => { 
-                        marker.closePopup(); 
-                        highlightCard(ap.id, false); 
-                    });
+                    cardWrapper.addEventListener('mouseover', () => marker.openPopup());
+                    cardWrapper.addEventListener('mouseout', () => marker.closePopup());
                 }
             });
         } catch (e) {
-            console.error("Error crítico al inicializar el mapa Leaflet:", e);
-            mapElement.innerHTML = '<div class="alert alert-danger m-3">Error al cargar el mapa.</div>';
+            console.error("Error al inicializar el mapa Leaflet:", e);
+            mapElement.innerHTML = '<div class="alert alert-danger">Error al cargar mapa.</div>';
         }
     }
 
-    /**
-     * Asigna los manejadores de eventos a los elementos interactivos de la página.
-     */
     function attachEventListeners() {
         if (apartmentGrid) {
             apartmentGrid.addEventListener('click', function(event) {
@@ -283,26 +275,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * Abre el modal con los datos de una propiedad específica.
-     * @param {object} propiedad - El objeto con los datos de la propiedad.
-     */
     function openModalWithData(propiedad) {
         if (!modal || !propiedad) return;
         
-        // Rellenar datos del modal
         modal.querySelector('#modalImage').src = propiedad.imgUrl;
-        modal.querySelector('#modalTitle').textContent = propiedad.name;
+        modal.querySelector('#modalTitle').textContent = propiedad.name; // 'name' viene del array JS
         modal.querySelector('#modalLocation').textContent = `${propiedad.ciudad}, Perú`;
         modal.querySelector('#modalPrice').textContent = propiedad.precio.toFixed(0);
         modal.querySelector('#modalRating').textContent = `${propiedad.rating} (${propiedad.reviews} reviews)`;
-        modal.querySelector('#modalDescription').textContent = `Descubre este increíble alojamiento en ${propiedad.ciudad}. Con todas las comodidades modernas, es el lugar perfecto para tu próxima aventura.`;
+        modal.querySelector('#modalDescription').textContent = propiedad.descripcion;
         
-        // Limpiar mensajes y resetear el formulario si existe
         if (reservaMessageDiv) reservaMessageDiv.innerHTML = '';
         if (formReserva) {
-            formReserva.reset(); // Limpia los campos de fecha
-            formReserva.querySelector('#propiedadId').value = propiedad.id;
+            formReserva.reset();
+            formReserva.querySelector('#propiedadId').value = propiedad.id; // ¡Esto es crucial!
             const botonReservar = formReserva.querySelector('.btn-reservar');
             if(botonReservar) {
                 botonReservar.disabled = false;
@@ -312,115 +298,50 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.style.display = 'block';
     }
     
-    /**
-     * Cierra el modal.
-     */
     function closeModal() {
         if(modal) modal.style.display = 'none';
     }
 
-    /**
-     * Resalta o quita el resaltado de una tarjeta de propiedad.
-     * @param {number} id - El ID de la propiedad.
-     * @param {boolean} highlight - True para resaltar, false para quitar.
-     */
-    function highlightCard(id, highlight) {
-        const card = document.querySelector(`[data-id="${id}"] .ap-card`);
-        if (card) {
-            card.classList.toggle('highlight', highlight);
-        }
-    }
-
-    /**
-     * Maneja el envío del formulario de reserva.
-     * @param {Event} event - El evento de envío del formulario.
-     */
     async function handleReservationSubmit(event) {
         event.preventDefault();
         const botonReservar = this.querySelector('.btn-reservar');
         const formData = new FormData(this);
 
-        // --- Validación del Frontend ---
-        const checkin = formData.get('checkin');
-        const checkout = formData.get('checkout');
-        if (!checkin || !checkout || new Date(checkout) <= new Date(checkin)) {
-            reservaMessageDiv.className = 'alert alert-danger mt-3';
-            reservaMessageDiv.textContent = 'Las fechas son inválidas. La fecha de Check-out debe ser posterior a la de Check-in.';
-            return;
-        }
-
-        // --- Actualización de la UI para indicar procesamiento ---
         botonReservar.disabled = true;
         botonReservar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
-        reservaMessageDiv.className = 'alert alert-info mt-3';
-        reservaMessageDiv.textContent = 'Enviando su solicitud de reserva...';
-
+        reservaMessageDiv.className = 'alert mt-3';
+        reservaMessageDiv.textContent = '';
+        
         try {
-            // --- Llamada a la API con fetch ---
-            const response = await fetch('/HostPilotWebApp/realizar-reserva', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(formData)
-    });
+const response = await fetch('/HostPilotWebApp/realizar-reserva', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(formData)
+        });
 
-            // Intenta parsear la respuesta como JSON, sin importar si fue exitosa o no.
-            // Esto es más robusto porque los errores (401, 400, 500) también pueden devolver un cuerpo JSON.
             const data = await response.json();
 
             if (!response.ok) {
-                // Si la respuesta no fue exitosa (ej. 400, 401, 404, 500), lanza un error con el mensaje del servidor.
                 throw new Error(data.message || `Error del servidor: ${response.status}`);
             }
 
-            // --- Manejo de la Respuesta Exitosa ---
             if (data.status === 'success') {
                 reservaMessageDiv.className = 'alert alert-success mt-3';
                 reservaMessageDiv.textContent = data.message;
                 botonReservar.textContent = '¡Reservado!';
-                // No deshabilitar el botón, pero el modal se cerrará.
                 setTimeout(closeModal, 3000); 
             } else {
-                // Caso poco común donde el status es 200 OK pero el JSON indica un fallo.
-                throw new Error(data.message || 'La respuesta del servidor no fue la esperada.');
+                throw new Error(data.message || 'No se pudo completar la reserva.');
             }
         } catch (error) {
-            // --- Manejo de Errores (de red o lanzados desde el bloque try) ---
             console.error('Error en la solicitud de reserva:', error);
             reservaMessageDiv.className = 'alert alert-danger mt-3';
-            
-            // Proporciona mensajes de error más específicos y útiles al usuario.
-            if (error.message.includes("Failed to fetch")) {
-                reservaMessageDiv.textContent = "Error de red. No se pudo conectar con el servidor.";
-            } else if (error.message.includes("is not valid JSON")) {
-                 reservaMessageDiv.textContent = "La respuesta del servidor no es válida. Contacte a soporte.";
-            } else {
-                reservaMessageDiv.textContent = error.message; // Muestra el mensaje de error del servidor.
-            }
-
-            // Habilita el botón de nuevo para que el usuario pueda intentar otra vez.
+            reservaMessageDiv.textContent = error.message;
             botonReservar.disabled = false;
             botonReservar.textContent = 'Reservar Ahora';
         }
     }
 });
 </script>
- <script type="text/javascript">
-      (function(d, t) {
-        var v = d.createElement(t), s = d.getElementsByTagName(t)[0];
-        v.onload = function() {
-          window.voiceflow.chat.load({
-            verify: { projectID: '685c870af59e7dd26c0a0d50' },
-            url: 'https://general-runtime.voiceflow.com',
-            versionID: 'production',
-            voice: {
-              url: "https://runtime-api.voiceflow.com"
-            }
-          });
-        }
-        v.src = "https://cdn.voiceflow.com/widget-next/bundle.mjs"; v.type = "text/javascript"; s.parentNode.insertBefore(v, s);
-      })(document, 'script');
-    </script>
 </body>
 </html>

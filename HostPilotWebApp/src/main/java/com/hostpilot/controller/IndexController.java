@@ -1,7 +1,14 @@
 package com.hostpilot.controller;
 
 import com.hostpilot.model.Propiedad;
+import com.hostpilot.service.PropiedadService;
+import com.hostpilot.dao.PropiedadServiceImpl;
+import com.hostpilot.service.ServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,47 +17,55 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Logger;
 
+@WebServlet("")
 public class IndexController extends HttpServlet {
 
-    private static final Logger LOGGER = Logger.getLogger(IndexController.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexController.class);
+    private PropiedadService propiedadService;
+
+    @Override
+    public void init() {
+        this.propiedadService = new PropiedadServiceImpl();
+        LOGGER.info("IndexController inicializado.");
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         
-        LOGGER.info("IndexController: Preparando datos para la página de inicio.");
+        LOGGER.info("Preparando datos para la página de inicio.");
         
-        String contextPath = request.getContextPath();
-        
-        // Creamos la lista completa de 8 propiedades
-        List<Propiedad> todasLasPropiedades = new ArrayList<>();
-        todasLasPropiedades.add(new Propiedad(1, "Loft moderno en Miraflores", -12.1215, -77.0307, "Lima", 240, 4.9, 25, contextPath + "/img/1.jpg"));
-        todasLasPropiedades.add(new Propiedad(2, "Depto con vista al mar", -4.1089, -81.1528, "Mancora", 320, 4.7, 5, contextPath + "/img/2.jpg"));
-        todasLasPropiedades.add(new Propiedad(3, "Ático panorámico en el Centro", -13.517, -71.978, "Cusco", 450, 4.8, 15, contextPath + "/img/3.jpg"));
-        todasLasPropiedades.add(new Propiedad(4, "Casa rústica y acogedora", -16.4090, -71.5375, "Arequipa", 280, 5.0, 30, contextPath + "/img/4.jpg"));
-        todasLasPropiedades.add(new Propiedad(5, "Bungalow ecológico en la selva", -6.4776, -76.3730, "Tarapoto", 310, 4.6, 18, contextPath + "/img/5.jpg"));
-        todasLasPropiedades.add(new Propiedad(6, "Cabaña de madera junto al lago", -15.8402, -70.0219, "Puno", 350, 4.7, 22, contextPath + "/img/6.jpg"));
-        todasLasPropiedades.add(new Propiedad(7, "Estudio moderno y céntrico", -8.1120, -79.0280, "Trujillo", 190, 4.5, 12, contextPath + "/img/7.jpg"));
-        todasLasPropiedades.add(new Propiedad(8, "Casa colonial restaurada", -7.1619, -78.5100, "Cajamarca", 300, 4.8, 19, contextPath + "/img/8.jpg"));
+        try {
+            // Obtener los datos REALES de la base de datos a través del servicio
+            List<Propiedad> todasLasPropiedades = propiedadService.obtenerTodasLasPropiedades();
 
-        // Seleccionar una imagen principal al azar
-        if (!todasLasPropiedades.isEmpty()) {
-            Propiedad propiedadPrincipal = todasLasPropiedades.get(new Random().nextInt(todasLasPropiedades.size()));
-            request.setAttribute("propiedadPrincipal", propiedadPrincipal);
+            if (!todasLasPropiedades.isEmpty()) {
+                // Seleccionar una propiedad principal al azar
+                Propiedad propiedadPrincipal = todasLasPropiedades.get(new Random().nextInt(todasLasPropiedades.size()));
+                request.setAttribute("propiedadPrincipal", propiedadPrincipal);
+
+                // Dividir para los dos carruseles
+                List<Propiedad> carrusel1 = new ArrayList<>(todasLasPropiedades);
+                Collections.shuffle(carrusel1); // Barajar para variedad
+                request.setAttribute("listaCarrusel1", carrusel1.subList(0, Math.min(4, carrusel1.size())));
+
+                List<Propiedad> carrusel2 = new ArrayList<>(todasLasPropiedades);
+                Collections.shuffle(carrusel2);
+                request.setAttribute("listaCarrusel2", carrusel2.subList(0, Math.min(4, carrusel2.size())));
+            } else {
+                LOGGER.warn("No se encontraron propiedades en la base de datos para mostrar en la página de inicio.");
+                // Establecer listas vacías para evitar errores en el JSP
+                request.setAttribute("propiedadPrincipal", null);
+                request.setAttribute("listaCarrusel1", new ArrayList<>());
+                request.setAttribute("listaCarrusel2", new ArrayList<>());
+            }
+
+        } catch (ServiceException e) {
+            LOGGER.error("Error al obtener datos para la página de inicio.", e);
+            request.setAttribute("error", "No se pudieron cargar los datos de las propiedades.");
         }
-
-        // Dividir las propiedades para los dos carruseles
-        List<Propiedad> carrusel1 = todasLasPropiedades.subList(0, Math.min(4, todasLasPropiedades.size()));
-        List<Propiedad> carrusel2 = new ArrayList<>(todasLasPropiedades); // Copia para no modificar la original
-        Collections.shuffle(carrusel2); // Barajar la segunda lista para que sea diferente
-        carrusel2 = carrusel2.subList(0, Math.min(4, carrusel2.size()));
-
-        request.setAttribute("listaCarrusel1", carrusel1);
-        request.setAttribute("listaCarrusel2", carrusel2);
         
-        // Hacemos forward al index.jsp
         request.getRequestDispatcher("/index.jsp").forward(request, response);
     }
 }

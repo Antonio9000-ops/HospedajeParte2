@@ -19,7 +19,7 @@ public class ServiceException extends Exception {
      * @param message El mensaje que describe el error.
      * @param cause La excepción original que causó este error (ej. una DAOException).
      */
-    public ServiceException(String message, Throwable cause) {
+public ServiceException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -32,4 +32,5 @@ public class ServiceException extends Exception {
     public String getUserFriendlyMessage() {
         return this.getMessage();
     }
+    
 }

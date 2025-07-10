@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
+import javax.servlet.annotation.WebServlet;
 
+@WebServlet("/logout")
 public class LogoutController extends HttpServlet {
 
     private static final Logger LOGGER = Logger.getLogger(LogoutController.class.getName());
