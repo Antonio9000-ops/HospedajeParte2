@@ -2,7 +2,7 @@ package com.hostpilot.controller;
 
 import com.hostpilot.model.Propiedad;
 import com.hostpilot.service.PropiedadService;
-import com.hostpilot.dao.PropiedadServiceImpl; // <<< CORRECCIÓN 1: Import correcto
+import com.hostpilot.service.PropiedadServiceImpl; // <<< CORRECCIÓN 1: Import correcto
 import com.hostpilot.service.ServiceException;     // <<< AÑADIR IMPORT
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;

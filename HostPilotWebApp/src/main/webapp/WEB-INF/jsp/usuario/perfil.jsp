@@ -1,100 +1,169 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Perfil - HostPilot</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/estilo4.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Hostpilot</title>
+    <%-- Estilos CSS integrados para replicar el diseño de la captura --%>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
-        .navbar { background-color: #333; overflow: hidden; padding: 10px 20px; }
-        .navbar a { float: left; display: block; color: white; text-align: center; padding: 14px 20px; text-decoration: none; }
-        .navbar a:hover { background-color: #ddd; color: black; }
-        .navbar a.logout { float: right; background-color: #dc3545; }
-        .navbar a.logout:hover { background-color: #c82333; }
-        .container { padding: 30px; max-width: 700px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #007bff; border-bottom: 2px solid #eee; padding-bottom: 10px; }
-        .profile-details { margin-top: 20px; }
-        .profile-details p {
-            font-size: 1.1em;
-            line-height: 1.8;
-            padding: 8px 0;
-            border-bottom: 1px dashed #eee;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #001f54; /* Fondo azul oscuro */
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
-        .profile-details p:last-child { border-bottom: none; }
-        .profile-details strong {
-            display: inline-block;
-            width: 180px; /* Ajusta según necesidad */
-            color: #555;
+        .header {
+            background-color: rgba(0, 0, 0, 0.2); /* Fondo de la barra de navegación semi-transparente */
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .btn-edit {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
+        .nav-links a {
             color: white;
             text-decoration: none;
-            border-radius: 4px;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: color 0.3s;
         }
-        .btn-edit:hover { background-color: #0056b3; }
+        .nav-links a:hover {
+            color: #ffc107; /* Color amarillo al pasar el ratón */
+        }
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn-logout:hover {
+            background-color: #c82333;
+        }
+        .profile-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1; /* Ocupa el espacio restante */
+            padding: 20px;
+        }
+        .profile-card {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .profile-card h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 35px;
+            color: #001f54;
+            font-size: 28px;
+        }
+        .profile-info {
+            display: grid;
+            grid-template-columns: 150px 1fr; /* Columna de etiquetas más ancha */
+            gap: 12px 20px;
+            align-items: center;
+        }
+        .profile-info label {
+            font-weight: bold;
+            color: #6c757d; /* Gris para las etiquetas */
+            text-align: right;
+        }
+        .profile-info span {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            font-size: 15px;
+            word-wrap: break-word; /* Para correos largos */
+        }
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
+    
+    <%-- Redirección si la sesión no es válida. El SecurityFilter ya debería hacer esto,
+         pero es una buena doble comprobación. --%>
     <c:if test="${empty sessionScope.userId}">
         <c:redirect url="${pageContext.request.contextPath}/login?error=sesionExpirada"/>
     </c:if>
 
-    <div class="navbar">
-        <a href="${pageContext.request.contextPath}/bienvenido.jsp">Inicio</a>
-        <a href="${pageContext.request.contextPath}/usuario?action=perfil">Mi Perfil</a>
-        <c:if test="${sessionScope.userRole == 'ADMIN'}">
-            <a href="${pageContext.request.contextPath}/admin?action=dashboard">Panel Admin</a>
-        </c:if>
-        <a href="${pageContext.request.contextPath}/logout" class="logout">Cerrar Sesión</a>
-    </div>
+    <header class="header">
+        <div class="nav-links">
+            <a href="${pageContext.request.contextPath}/">Inicio</a>
+            <a href="${pageContext.request.contextPath}/usuario?action=perfil">Mi Perfil</a>
+            
+            <%-- Muestra "Panel Admin" solo si el usuario tiene el rol 'ADMIN' --%>
+            <c:if test="${sessionScope.userRole == 'ADMIN'}">
+                <a href="${pageContext.request.contextPath}/admin/dashboard">Panel Admin</a>
+            </c:if>
+        </div>
+        <a href="${pageContext.request.contextPath}/logout" class="btn-logout">Cerrar Sesión</a>
+    </header>
 
-    <div class="container">
-        <h1>Mi Perfil</h1>
-        <c:if test="${not empty requestScope.usuarioPerfil}">
-            <div class="profile-details">
-                <p><strong>ID de Usuario:</strong> <c:out value="${usuarioPerfil.id}"/></p>
-                <p><strong>Nombre Completo:</strong> <c:out value="${usuarioPerfil.nombre} ${usuarioPerfil.apellido}"/></p>
-                <p><strong>Correo Electrónico:</strong> <c:out value="${usuarioPerfil.email}"/></p>
-                <p><strong>Rol:</strong> <c:out value="${usuarioPerfil.rol}"/></p>
-                <p><strong>Edad:</strong> <c:out value="${not empty usuarioPerfil.edad ? usuarioPerfil.edad : 'No especificada'}"/></p>
-                <p><strong>Género:</strong> <c:out value="${not empty usuarioPerfil.genero ? usuarioPerfil.genero : 'No especificado'}"/></p>
-                <p><strong>Teléfono:</strong> <c:out value="${not empty usuarioPerfil.telefono ? usuarioPerfil.telefono : 'No especificado'}"/></p>
-                <p><strong>Usuario Activo:</strong> <c:out value="${usuarioPerfil.activo ? 'Sí' : 'No'}"/></p>
-                <p><strong>Fecha de Creación:</strong> 
-                    <fmt:formatDate value="${usuarioPerfil.fechaCreacion}" pattern="dd/MM/yyyy HH:mm:ss" type="both" timeZone="UTC"/>
-                    (UTC)
-                </p>
-                <p><strong>Última Modificación:</strong> 
-                    <c:if test="${not empty usuarioPerfil.fechaModificacion}">
-                        <fmt:formatDate value="${usuarioPerfil.fechaModificacion}" pattern="dd/MM/yyyy HH:mm:ss" type="both" timeZone="UTC"/>
-                        (UTC)
-                    </c:if>
-                    <c:if test="${empty usuarioPerfil.fechaModificacion}">
-                        N/A
-                    </c:if>
-                </p>
-                <p><strong>Último Acceso:</strong> 
-                    <c:if test="${not empty usuarioPerfil.ultimoAcceso}">
-                        <fmt:formatDate value="${usuarioPerfil.ultimoAcceso}" pattern="dd/MM/yyyy HH:mm:ss" type="both" timeZone="UTC"/>
-                        (UTC)
-                    </c:if>
-                    <c:if test="${empty usuarioPerfil.ultimoAcceso}">
-                        N/A
-                    </c:if>
-                </p>
+    <main class="profile-container">
+        
+        <%-- Usamos el objeto "usuario" que nos envía el UsuarioController --%>
+        <c:if test="${not empty requestScope.usuario}">
+            <div class="profile-card">
+                <h1>Mi Perfil</h1>
+                <div class="profile-info">
+                    <label>ID de Usuario:</label>
+                    <span><c:out value="${usuario.id}"/></span>
+
+                    <label>Nombre Completo:</label>
+                    <span><c:out value="${usuario.nombre} ${usuario.apellido}"/></span>
+
+                    <label>Correo Electrónico:</label>
+                    <span><c:out value="${usuario.email}"/></span>
+
+                    <label>Rol:</label>
+                    <span><c:out value="${usuario.rol}"/></span>
+
+                    <label>Edad:</label>
+                    <span><c:out value="${not empty usuario.edad ? usuario.edad : 'No especificado'}"/></span>
+
+                    <label>Género:</label>
+                    <span><c:out value="${not empty usuario.genero ? usuario.genero : 'No especificado'}"/></span>
+
+                    <label>Teléfono:</label>
+                    <span><c:out value="${not empty usuario.telefono ? usuario.telefono : 'No especificado'}"/></span>
+                </div>
             </div>
-            <%-- <a href="${pageContext.request.contextPath}/usuario?action=editarperfil" class="btn-edit">Editar Perfil</a> --%>
         </c:if>
-        <c:if test="${empty requestScope.usuarioPerfil}">
-            <p class="error-message">No se pudo cargar la información del perfil.</p>
+
+        <%-- Mensaje de error si el objeto usuario no se pudo cargar --%>
+        <c:if test="${empty requestScope.usuario}">
+            <div class="profile-card">
+                 <p class="error-message">No se pudo cargar la información del perfil. Por favor, intente de nuevo.</p>
+            </div>
         </c:if>
-    </div>
+
+    </main>
+
 </body>
 </html>

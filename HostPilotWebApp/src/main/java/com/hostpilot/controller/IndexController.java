@@ -2,7 +2,7 @@ package com.hostpilot.controller;
 
 import com.hostpilot.model.Propiedad;
 import com.hostpilot.service.PropiedadService;
-import com.hostpilot.dao.PropiedadServiceImpl;
+import com.hostpilot.service.PropiedadServiceImpl;
 import com.hostpilot.service.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

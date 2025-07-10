@@ -159,7 +159,7 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>HostPilotWebApp</finalName> <!-- Corregido para coincidir con tu app -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

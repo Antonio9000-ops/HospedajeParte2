@@ -1,30 +1,39 @@
 package com.hostpilot.model;
 
+/**
+ * Representa una propiedad de alquiler en el sistema.
+ * Contiene todos los atributos de una propiedad.
+ */
 public class Propiedad {
-    private int id; // Cambiado a int para que coincida con la BD
-    private String titulo; // Cambiado de 'nombre' a 'titulo'
+    private int id;
+    private String titulo;
+    private String descripcion;
     private String direccion;
     private String ciudad;
-    private double precioPorNoche; // Cambiado de 'precio' a 'precioPorNoche'
+    private double precioPorNoche;
     private int capacidad;
     private String tipo;
-    private String descripcion;
+    private String imgUrl;
     private double lat;
     private double lng;
-    private double rating; // Este campo no está en tu BD, podría causar un error si no se maneja.
-    private int reviews;   // Este campo tampoco está en tu BD.
-    private String imgUrl; // Este campo tampoco está en tu BD, asegúrate de añadirlo.
+    private double rating;
+    private int reviews; // <--- CORREGIDO para que coincida con la BD
     private int anfitrionId;
 
+    // Constructor por defecto
     public Propiedad() {
     }
 
-    // GETTERS Y SETTERS
+    // --- Getters y Setters ---
+
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
     public String getTitulo() { return titulo; }
     public void setTitulo(String titulo) { this.titulo = titulo; }
+
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
@@ -38,14 +47,14 @@ public class Propiedad {
     public int getCapacidad() { return capacidad; }
     public void setCapacidad(int capacidad) { this.capacidad = capacidad; }
 
+
+
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
-    
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    // Campos que usabas antes pero no veo en la estructura actual de tu BD.
-    // Si no los vas a usar, puedes borrarlos. Si los necesitas, tienes que AÑADIRLOS a tu tabla en phpMyAdmin.
+    public String getImgUrl() { return imgUrl; }
+    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
+
     public double getLat() { return lat; }
     public void setLat(double lat) { this.lat = lat; }
 
@@ -54,13 +63,11 @@ public class Propiedad {
 
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }
-
+    
+    // --- MÉTODOS CORREGIDOS para que coincidan con el campo 'reviews' ---
     public int getReviews() { return reviews; }
     public void setReviews(int reviews) { this.reviews = reviews; }
 
-    public String getImgUrl() { return imgUrl; }
-    public void setImgUrl(String imgUrl) { this.imgUrl = imgUrl; }
-    
     public int getAnfitrionId() { return anfitrionId; }
     public void setAnfitrionId(int anfitrionId) { this.anfitrionId = anfitrionId; }
 }

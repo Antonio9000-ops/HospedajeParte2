@@ -78,6 +78,9 @@
             <a href="${pageContext.request.contextPath}/reservas">Reserva</a>
             <a href="#">Zonas</a>
             <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
+            <c:if test="${sessionScope.userRole == 'ADMIN'}">
+            <a href="${pageContext.request.contextPath}/admin/dashboard" style="color: #ffc107; font-weight: bold;">Modo ADMIN</a>
+        </c:if>
         </nav>
     </header>
 

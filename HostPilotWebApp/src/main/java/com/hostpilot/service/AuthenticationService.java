@@ -36,8 +36,17 @@ public class AuthenticationService {
         this.encryptionService = encryptionService;
     }
 
+    /**
+     * Autentica a un usuario, actualiza su último acceso y crea una sesión segura.
+     * @param email Email del usuario.
+     * @param password Contraseña sin encriptar.
+     * @param request El HttpServletRequest para obtener/crear la sesión.
+     * @return El objeto Usuario si la autenticación es exitosa, de lo contrario null.
+     * @throws ServiceException Si ocurre un error de validación o de sistema.
+     */
     public Usuario authenticate(String email, String password, HttpServletRequest request) throws ServiceException {
         if (email == null || !InputValidator.isValidEmail(email.trim())) {
+            LOGGER.warning("Intento de login con email inválido: " + email);
             throw new ServiceException("Formato de email inválido.");
         }
         if (password == null || password.isEmpty()) {
@@ -45,8 +54,10 @@ public class AuthenticationService {
         }
 
         try {
+            // Buscamos al usuario por su email
             Optional<Usuario> usuarioOpt = usuarioDAO.buscarPorEmail(email.trim().toLowerCase());
 
+            // Si el usuario no existe o no está activo, retornamos null
             if (!usuarioOpt.isPresent() || !usuarioOpt.get().isActivo()) {
                 LOGGER.warning("Intento de login fallido para " + email + " (usuario no encontrado o inactivo).");
                 return null; // No dar pistas de si el usuario existe o no.
@@ -54,21 +65,36 @@ public class AuthenticationService {
 
             Usuario usuario = usuarioOpt.get();
 
+            // Verificamos la contraseña
             if (!encryptionService.verifyPassword(password, usuario.getPassword())) {
                 LOGGER.warning("Contraseña incorrecta para usuario: " + email);
                 return null;
             }
 
             // --- Autenticación Exitosa ---
-            LOGGER.info("Autenticación exitosa para usuario: " + email);
+            LOGGER.info("Autenticación exitosa para usuario: " + email + " con rol: " + usuario.getRol());
             
-            // Actualizar último acceso y persistir
+            // Actualizamos la fecha del último acceso en la base de datos
             usuario.setUltimoAcceso(LocalDateTime.now());
-            usuarioDAO.actualizar(usuario);
+            usuarioDAO.actualizar(usuario); // Nota: Asegúrate que este `actualizar` no requiera la contraseña.
 
-            // Crear sesión segura
+            // --- CREACIÓN DE LA SESIÓN ---
+            // Obtenemos la sesión (la crea si no existe)
             HttpSession session = request.getSession(true);
-            SessionManager.createUserSession(session, usuario, request);
+            
+            // Guardamos los datos esenciales del usuario en la sesión.
+            // Esta es la parte central que conecta el backend con el frontend (JSP).
+            session.setAttribute("userId", usuario.getId());
+            session.setAttribute("userEmail", usuario.getEmail());
+            session.setAttribute("userName", usuario.getNombre());
+            
+            // ====================== ¡LÍNEA CLAVE! ======================
+            // Guardamos el ROL del usuario en la sesión.
+            session.setAttribute("userRole", usuario.getRol());
+            // ==========================================================
+
+            // (Opcional) Si tu SessionManager hace más cosas, puedes llamarlo aquí también.
+            // SessionManager.createUserSession(session, usuario, request);
 
             return usuario;
 
