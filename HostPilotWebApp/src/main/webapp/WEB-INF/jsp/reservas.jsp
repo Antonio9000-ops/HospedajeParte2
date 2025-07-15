@@ -9,7 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Reservas - HostPilot</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
@@ -44,9 +43,9 @@
         .card-body { padding: 1rem; }
         .ap-title { font-size: 1.1rem; font-weight: 600; }
         .price { font-weight: 700; color: #333; }
-        @media (max-width: 992px) { .left-col { flex: 1 1 100%; } .right-col { display: none; } body { overflow-y: auto; } }
         .modal { display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); padding-top: 60px; }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 10px; position: relative; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
         .modal-close { color: #aaa; float: right; font-size: 28px; font-weight: bold; }
         .modal-image { width: 100%; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 20px; }
         .reserva-form { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
@@ -55,12 +54,53 @@
         .reserva-form input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
         .btn-reservar { width: 100%; padding: 12px; font-size: 1.2rem; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
         .login-prompt { text-align: center; background-color: #fff3cd; padding: 15px; border-radius: 5px; }
+
+        /* General layout/utility classes for forms and buttons */
+        .mb-4 { margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+        .d-flex { display: flex; }
+        .justify-content-between { justify-content: space-between; }
+        .align-items-center { align-items: center; }
+        .btn { display: inline-block; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; border: 1px solid transparent; transition: all 0.15s ease-in-out; }
+        .btn-primary { color: #fff; background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0069d9; border-color: #0062cc; }
+        .btn-success { color: #fff; background-color: #28a745; border-color: #28a745; }
+        .btn-success:hover { background-color: #218838; border-color: #1e7e34; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; border-radius: 0.2rem; }
+        .mt-2 { margin-top: 0.5rem; }
+        .row { display: flex; flex-wrap: wrap; margin-left: -0.75rem; margin-right: -0.75rem; }
+        .row > * { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .col-md-6 { flex: 0 0 auto; width: 50%; }
+        .col-md-3 { flex: 0 0 auto; width: 25%; }
+        .text-muted { color: #6c757d !important; }
+        .small { font-size: 0.875em !important; }
+        .spinner-border { display: inline-block; width: 1rem; height: 1rem; vertical-align: text-bottom; border: 0.15em solid currentColor; border-right-color: transparent; border-radius: 50%; -webkit-animation: spinner-border .75s linear infinite; animation: spinner-border .75s linear infinite; }
+        @keyframes spinner-border { to { transform: rotate(360deg); } }
+        
+        /* New styles for payment section in modal */
+        .reserva-form fieldset { border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 20px; background-color: #fdfdfd; }
+        .reserva-form legend { font-size: 1.1em; font-weight: bold; color: #001f54; padding: 0 5px; margin-left: -5px; background-color: #fff; border-radius: 3px; }
+        .reserva-form .payment-section .form-group { margin-bottom: 10px; }
+        .reserva-form .card-details-row { display: flex; gap: 10px; }
+        .reserva-form .card-details-row > div { flex: 1; }
+
+        @media (max-width: 992px) {
+            .left-col { flex: 1 1 100%; } 
+            .right-col { display: none; } 
+            body { overflow-y: auto; }
+            .modal-content { margin: 10% auto; }
+        }
+        @media (max-width: 768px) {
+            .top-bar { flex-direction: column; gap: 10px; }
+            .search-container { width: 100%; }
+            .user-menu { width: 100%; justify-content: center; margin-left: 0; }
+            nav { border-radius: 0; }
+        }
     </style>
 </head>
 <body>
     <div class="page-wrapper">
         <header class="header-container">
-            <%-- COPIA Y PEGA TU HEADER AQUÍ --%>
             <div class="top-bar">
                  <a href="${pageContext.request.contextPath}/"><img src="${pageContext.request.contextPath}/img/logo.png" alt="Hostpilot logo" class="logo"></a>
                 <form action="${pageContext.request.contextPath}/buscar" method="GET" class="search-container">
@@ -82,9 +122,10 @@
             </div>
             <nav>
                 <a href="${pageContext.request.contextPath}/">Inicio</a>
-                <a href="${pageContext.request.contextPath}/reservas" class="active">Reserva</a>
+                <a href="${pageContext.request.contextPath}/reservas" class="active">Explorar</a>
+                <a href="${pageContext.request.contextPath}/mis-reservas">Mis Reservas</a>
                 <a href="#">Zonas</a>
-                 <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
+                <a href="${pageContext.request.contextPath}/anfitrion">Anfitrión</a>
             </nav>
         </header>
 
@@ -156,15 +197,58 @@
                             <form id="formReserva">
                                 <input type="hidden" id="propiedadId" name="propiedadId">
                                 <div class="row">
-                                    <div class="col-md-6 form-group">
+                                    <div class="form-group col-md-6">
                                         <label for="checkin">Fecha de Check-in:</label>
                                         <input type="date" id="checkin" name="checkin" class="form-control" required>
                                     </div>
-                                    <div class="col-md-6 form-group">
+                                    <div class="form-group col-md-6">
                                         <label for="checkout">Fecha de Check-out:</label>
                                         <input type="date" id="checkout" name="checkout" class="form-control" required>
                                     </div>
                                 </div>
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label for="adultos">Adultos:</label>
+                                        <input type="number" id="adultos" name="adultos" class="form-control" value="1" min="1" required>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="ninos">Niños:</label>
+                                        <input type="number" id="ninos" name="ninos" class="form-control" value="0" min="0">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="bebes">Bebés:</label>
+                                        <input type="number" id="bebes" name="bebes" class="form-control" value="0" min="0">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label for="mascotas">Mascotas:</label>
+                                        <input type="number" id="mascotas" name="mascotas" class="form-control" value="0" min="0">
+                                    </div>
+                                </div>
+                                
+                                <fieldset>
+                                    <legend>Pago</legend>
+                                    <div class="payment-section">
+                                        <div class="form-group">
+                                            <label for="titularTarjeta">Titular de la tarjeta:</label>
+                                            <input type="text" id="titularTarjeta" name="titularTarjeta" class="form-control" value="" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="numeroTarjeta">Número de tarjeta:</label>
+                                            <input type="text" id="numeroTarjeta" name="numeroTarjeta" class="form-control" value="" required>
+                                        </div>
+                                        <div class="card-details-row">
+                                            <div>
+                                                <label for="vencimiento">Vencimiento (MM/AA):</label>
+                                                <input type="text" id="vencimiento" name="vencimiento" class="form-control" placeholder="MM/AA" value="" required>
+                                            </div>
+                                            <div>
+                                                <label for="cvv">CVV:</label>
+                                                <input type="text" id="cvv" name="cvv" class="form-control" value="" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </fieldset>
+
                                 <button type="submit" class="btn-reservar mt-3">Reservar Ahora</button>
                             </form>
                         </c:when>
@@ -183,35 +267,28 @@
         </div>
     </div>
 
-    <%-- SCRIPT COMPLETO Y CORREGIDO PARA RESERVAS.JSP --%>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
    <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // --- VARIABLES Y CONSTANTES ---
     const contextPath = "${pageContext.request.contextPath}";
     
-    // === LA CORRECCIÓN ESTÁ AQUÍ ===
-    // Ahora construimos el array de JavaScript con los nombres de propiedad correctos
     const apartmentData = [
         <c:forEach items="${listaPropiedades}" var="prop" varStatus="loop">
             { 
                 id: ${prop.id}, 
-                name: '<c:out value="${prop.titulo}"/>',       // CORREGIDO de nombre a titulo
+                name: '<c:out value="${prop.titulo}"/>',
                 lat: ${prop.lat}, 
                 lng: ${prop.lng},
                 ciudad: '<c:out value="${prop.ciudad}"/>',
-                precio: ${prop.precioPorNoche}, // CORREGIDO de precio a precioPorNoche
+                precio: ${prop.precioPorNoche},
                 rating: ${prop.rating},
                 reviews: ${prop.reviews},
-                descripcion: '<c:out value="${prop.descripcion}"/>', // Añadido
+                descripcion: '<c:out value="${prop.descripcion}"/>',
                 imgUrl: '${pageContext.request.contextPath}/${prop.imgUrl}'
             }<c:if test="${not loop.last}">,</c:if>
         </c:forEach>
     ];
-    // === FIN DE LA CORRECCIÓN ===
 
-    // Elementos del DOM
     const apartmentGrid = document.getElementById('apartmentGrid');
     const mapElement = document.getElementById('map');
     const modal = document.getElementById('propiedadModal');
@@ -219,11 +296,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const formReserva = document.getElementById('formReserva');
     const reservaMessageDiv = document.getElementById('reservaMessage');
     
-    // --- INICIALIZACIÓN ---
     initMap();
     attachEventListeners();
-
-    // --- FUNCIONES ---
 
     function initMap() {
         if (!mapElement) { console.error("Elemento del mapa no encontrado."); return; }
@@ -279,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!modal || !propiedad) return;
         
         modal.querySelector('#modalImage').src = propiedad.imgUrl;
-        modal.querySelector('#modalTitle').textContent = propiedad.name; // 'name' viene del array JS
+        modal.querySelector('#modalTitle').textContent = propiedad.name;
         modal.querySelector('#modalLocation').textContent = `${propiedad.ciudad}, Perú`;
         modal.querySelector('#modalPrice').textContent = propiedad.precio.toFixed(0);
         modal.querySelector('#modalRating').textContent = `${propiedad.rating} (${propiedad.reviews} reviews)`;
@@ -288,7 +362,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (reservaMessageDiv) reservaMessageDiv.innerHTML = '';
         if (formReserva) {
             formReserva.reset();
-            formReserva.querySelector('#propiedadId').value = propiedad.id; // ¡Esto es crucial!
+            formReserva.querySelector('#propiedadId').value = propiedad.id;
+            formReserva.querySelector('#adultos').value = 1;
+            formReserva.querySelector('#ninos').value = 0;
+            formReserva.querySelector('#bebes').value = 0;
+            formReserva.querySelector('#mascotas').value = 0;
+            
+            // Vaciar campos de pago
+            formReserva.querySelector('#titularTarjeta').value = '';
+            formReserva.querySelector('#numeroTarjeta').value = '';
+            formReserva.querySelector('#vencimiento').value = '';
+            formReserva.querySelector('#cvv').value = '';
+
             const botonReservar = formReserva.querySelector('.btn-reservar');
             if(botonReservar) {
                 botonReservar.disabled = false;
@@ -313,11 +398,11 @@ document.addEventListener('DOMContentLoaded', function() {
         reservaMessageDiv.textContent = '';
         
         try {
-const response = await fetch('/HostPilotWebApp/realizar-reserva', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(formData)
-        });
+            const response = await fetch('/HostPilotWebApp/realizar-reserva', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(formData)
+            });
 
             const data = await response.json();
 

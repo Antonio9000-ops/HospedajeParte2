@@ -8,28 +8,20 @@
     <display-name>HostPilot Web Application</display-name>
     <description>Sistema de gestión HostPilot con arquitectura MVC, DAO, SOLID</description>
 
-    <!-- Parámetro de contexto (opcional) -->
     <context-param>
         <param-name>environment</param-name>
         <param-value>development</param-value>
     </context-param>
-
-    <!-- Configuración de la Sesión -->
+    
     <session-config>
-        <session-timeout>30</session-timeout> <!-- minutos -->
+        <session-timeout>30</session-timeout>
         <cookie-config>
             <http-only>true</http-only>
-            <!-- En producción, esto debería ser 'true' si usas HTTPS -->
             <secure>false</secure> 
         </cookie-config>
         <tracking-mode>COOKIE</tracking-mode>
     </session-config>
 
-    <!-- ======================================================= -->
-    <!--                  FILTROS GLOBALES                       -->
-    <!-- ======================================================= -->
-
-    <!-- Filtro para forzar la codificación UTF-8 en todas las peticiones -->
     <filter>
         <filter-name>EncodingFilter</filter-name>
         <filter-class>org.apache.catalina.filters.SetCharacterEncodingFilter</filter-class>
@@ -47,7 +39,6 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- Filtro de Seguridad Personalizado -->
     <filter>
         <filter-name>SecurityFilter</filter-name>
         <filter-class>com.hostpilot.security.SecurityFilter</filter-class>
@@ -58,29 +49,23 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     
- 
-
-    <!-- Página de bienvenida -->
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
 
-    <!-- Páginas de Error Personalizadas -->
     <error-page>
         <error-code>403</error-code>
-        <location>/WEB-INF/jsp/error/403.jsp</location> <!-- Movido a una carpeta segura -->
+        <location>/WEB-INF/jsp/error/403.jsp</location>
     </error-page>
     <error-page>
         <error-code>404</error-code>
-        <location>/WEB-INF/jsp/error/404.jsp</location> <!-- Movido a una carpeta segura -->
+        <location>/WEB-INF/jsp/error/404.jsp</location>
     </error-page>
     <error-page>
         <error-code>500</error-code>
-        <location>/WEB-INF/jsp/error/500.jsp</location> <!-- Movido a una carpeta segura -->
+        <location>/WEB-INF/jsp/error/500.jsp</location>
     </error-page>
 
-    <!-- Mapeos MIME (generalmente no son necesarios en servidores modernos como Tomcat) -->
-    <!-- Los he dejado por si los necesitas por alguna razón específica -->
     <mime-mapping>
         <extension>css</extension>
         <mime-type>text/css</mime-type>
@@ -97,5 +82,4 @@
         <extension>woff2</extension>
         <mime-type>font/woff2</mime-type>
     </mime-mapping>
-
 </web-app>
